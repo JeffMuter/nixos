@@ -39,6 +39,7 @@
     nodejs
     pkgs.stylua
     unzip
+    sqlc
   ];
 
   # This value determines the NixOS release from which the default
