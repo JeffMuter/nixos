@@ -42,6 +42,7 @@
     sqlc
     postgresql
     sqlite
+    tailwindcss
   ];
 
   # This value determines the NixOS release from which the default
