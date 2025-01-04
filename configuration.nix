@@ -37,7 +37,8 @@
     xclip # only necessary if outside tmux
     wl-clipboard #backup if xclip isn't working
     sqlc
-    hugo #blog
+    hugo #blog compiler
+    firebase-tools #firebase server tooling
     postgresql
     sqlite
     tailwindcss
