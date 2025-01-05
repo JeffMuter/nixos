@@ -43,13 +43,12 @@
     sqlite
     tailwindcss
   ];
-
   programs.tmux = {
     enable = true;
     plugins = with pkgs.tmuxPlugins; [
-      yank
       resurrect
-      prefix-highlight
+      yank
+      sensible
     ];
   };
 }
