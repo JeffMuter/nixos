@@ -16,9 +16,10 @@
 
   # enables, then sets zsh to the default shell for the system
   programs.zsh.enable = true;
+
   users.users.emerald = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "video" "input" "users" ];
     shell = pkgs.zsh;
   };
 
@@ -28,14 +29,14 @@
     stow
     zsh
     git
-    neovim
+    neovim-unwrapped
     tmux
     go
     nodejs
     pkgs.stylua
     unzip
-    xclip # only necessary if outside tmux
-    wl-clipboard #backup if xclip isn't working
+    xclip
+    xsel
     sqlc
     hugo #blog compiler
     firebase-tools #firebase server tooling
@@ -50,5 +51,9 @@
       yank
       sensible
     ];
+  };
+
+  services.xserver = {
+    enable = true;
   };
 }
