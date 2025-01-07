@@ -43,6 +43,10 @@
     postgresql
     sqlite
     tailwindcss
+    playwright-driver
+    firefox
+    chromium
+    xvfb-run
   ];
   programs.tmux = {
     enable = true;
