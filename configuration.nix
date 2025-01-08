@@ -4,6 +4,7 @@
   # sets the version/channel of Nix i want to use
   system.stateVersion = "24.11"; 
   system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.11";
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   imports = [
     # include NixOS-WSL modules
