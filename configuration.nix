@@ -9,14 +9,12 @@
   imports = [
     # include NixOS-WSL modules
     <nixos-wsl/modules>
+    ./zsh.nix
   ];
 
   # settings to enable and default user if using wsl
   wsl.enable = true;
   wsl.defaultUser = "emerald";
-
-  # enables, then sets zsh to the default shell for the system
-  programs.zsh.enable = true;
 
   users.users.emerald = {
     isNormalUser = true;
