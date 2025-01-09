@@ -27,6 +27,8 @@
     gcc
     stow
     zsh
+    zsh-syntax-highlighting
+    zsh-autosuggestions
     git
     neovim-unwrapped
     tmux
