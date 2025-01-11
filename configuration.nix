@@ -10,21 +10,12 @@
     # include NixOS-WSL modules
     <nixos-wsl/modules>
     ./zsh.nix
+    ./postgres.nix
   ];
 
-  services.postgresql = {
-    enable = true;
-    ensureDatabases = [ "mydatabase" ];
-    authentication = pkgs.lib.mkOverride 10 ''
-      #type database  DBuser  auth-method
-      local all       all     trust
-    '';
-  };
   # settings to enable and default user if using wsl
   wsl.enable = true;
   wsl.defaultUser = "emerald";
-
-
 
   users.users.emerald = {
     isNormalUser = true;
@@ -56,7 +47,7 @@
     sqlite
     tailwindcss
   ];
-  	
+
   programs.tmux = {
     enable = true;
     plugins = with pkgs.tmuxPlugins; [
@@ -65,5 +56,4 @@
       sensible
     ];
   };
-
 }

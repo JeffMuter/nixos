@@ -60,6 +60,10 @@
     "yarn"
       ];
     };
+
+    shellAliases = {
+	win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
+    };
     
     histSize = 10000;
     histFile = "$HOME/.zsh_history";
