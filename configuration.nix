@@ -35,6 +35,7 @@
     neovim-unwrapped
     tmux
     go
+    tinygo
     nodejs
     pkgs.stylua
     unzip
