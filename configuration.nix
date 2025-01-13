@@ -42,8 +42,9 @@
     xclip
     xsel
     sqlc
-    hugo #blog compiler
-    firebase-tools #firebase server tooling
+    ffmpeg                    # used to run video-based commands, project muse is the only current use
+    hugo 	 	      # blog compiler
+    firebase-tools            # firebase server tooling
     postgresql
     sqlite
     tailwindcss
