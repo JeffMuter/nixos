@@ -43,6 +43,7 @@
     xsel
     sqlc
     ffmpeg                    # used to run video-based commands, project muse is the only current use
+    mediamtx
     hugo 	 	      # blog compiler
     firebase-tools            # firebase server tooling
     postgresql
