@@ -54,7 +54,6 @@
     "golang"
     "pass"
     "poetry"
-    "ripgrep"
     "rsync"
     "ruby"
     "screen"
