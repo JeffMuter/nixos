@@ -92,4 +92,8 @@
   environment.variables = {
     ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
   };
+
+  environment.sessionVariables = {
+    GOPATH = [ "$HOME/go" ];
+  };
 }

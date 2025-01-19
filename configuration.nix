@@ -45,6 +45,8 @@
     ffmpeg                    # used to run video-based commands, project muse is the only current use
     mediamtx
     protobuf_28
+    protoc-gen-go
+    protoc-gen-go-grpc
     hugo 	 	      # blog compiler
     firebase-tools            # firebase server tooling
     postgresql
