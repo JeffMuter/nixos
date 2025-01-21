@@ -23,6 +23,8 @@
     shell = pkgs.zsh;
   };
 
+  nixpkgs.config.allowUnfree = true; 
+
   # install and enable these packages
   environment.systemPackages = with pkgs; [
     gcc
@@ -37,6 +39,7 @@
     go
     zig
     tinygo
+    terraform
     nodejs
     pkgs.stylua
     unzip
