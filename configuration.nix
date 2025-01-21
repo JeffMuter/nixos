@@ -40,6 +40,7 @@
     zig
     tinygo
     terraform
+    azure-cli
     nodejs
     pkgs.stylua
     unzip
