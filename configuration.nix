@@ -57,6 +57,7 @@
     postgresql
     sqlite
     tailwindcss
+    ripgrep
   ];
 
   programs.tmux = {
