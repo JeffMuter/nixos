@@ -6,16 +6,9 @@
   system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.11";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  imports = [
-    # include NixOS-WSL modules
-    <nixos-wsl/modules>
-    ./zsh.nix
-    ./postgres.nix
-  ];
-
-  # settings to enable and default user if using wsl
-  wsl.enable = true;
-  wsl.defaultUser = "emerald";
+  imports = if builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop"
+    then  [ ./wsl.nix ./zsh.nix <nixos-wsl/modules> ]
+    else  [ ./native.nix ./hardware-configuration.nix ./zsh.nix ];
 
   users.users.emerald = {
     isNormalUser = true;
@@ -58,6 +51,7 @@
     sqlite
     tailwindcss
     ripgrep
+    lynx # text web browser.... btw
   ];
 
   programs.tmux = {
@@ -67,5 +61,13 @@
       yank
       sensible
     ];
+  };
+
+  programs.git = {
+    enable = true;
+    config = {
+      user.email = "muterjeffery@gmail.com";
+      user.name = "JeffMuter";
+    };
   };
 }
