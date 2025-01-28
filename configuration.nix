@@ -42,6 +42,7 @@
     terraform
     azure-cli
     nodejs
+    nodePackages.npm
     pkgs.stylua
     unzip
     xclip
