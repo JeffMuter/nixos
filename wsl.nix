@@ -1,2 +1,5 @@
-wsl.enable = true;
-wsl.defaultUser = "emerald";
+{ pkgs, config, ... }:
+{
+  wsl.enable = true;
+  wsl.defaultUser = "emerald";
+}
