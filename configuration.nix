@@ -20,6 +20,7 @@
 
   # install and enable these packages
   environment.systemPackages = with pkgs; [
+    fzf
     gcc
     stow
     zsh
