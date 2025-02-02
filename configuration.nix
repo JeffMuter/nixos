@@ -40,7 +40,6 @@
     unzip
     xclip
     xsel
-    sqlc
     ffmpeg                    # used to run video-based commands, project muse is the only current use
     mediamtx
     protobuf_28
