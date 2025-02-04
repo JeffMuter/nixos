@@ -53,6 +53,7 @@
     tailwindcss
     ripgrep
     lynx # text web browser.... btw
+    cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
   ];
 
   programs.tmux = {
