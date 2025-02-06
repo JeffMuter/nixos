@@ -42,6 +42,7 @@
     xclip
     xsel
     ffmpeg                    # used to run video-based commands, project muse is the only current use
+    yt-dlp
     mediamtx
     protobuf_28
     protoc-gen-go
