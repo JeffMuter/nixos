@@ -45,6 +45,7 @@
     yt-dlp
     mediamtx
     docker
+    docker-compose
     docker-credential-helpers
     protobuf_28
     protoc-gen-go
