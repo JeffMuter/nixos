@@ -42,6 +42,7 @@
     xclip
     xsel
     ffmpeg                    # used to run video-based commands, project muse is the only current use
+    jq
     yt-dlp
     mediamtx
     docker
