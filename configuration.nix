@@ -12,7 +12,7 @@
 
   users.users.emerald = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "input" "users" ];
+    extraGroups = [ "wheel" "video" "input" "users" "docker" ];
     shell = pkgs.zsh;
   };
 
@@ -41,9 +41,13 @@
     unzip
     xclip
     xsel
-    sqlc
     ffmpeg                    # used to run video-based commands, project muse is the only current use
+    jq
+    yt-dlp
     mediamtx
+    docker
+    docker-compose
+    docker-credential-helpers
     protobuf_28
     protoc-gen-go
     protoc-gen-go-grpc
@@ -54,7 +58,13 @@
     tailwindcss
     ripgrep
     lynx # text web browser.... btw
+    cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
+    git-filter-repo
+    nethack
   ];
+
+  virtualisation.docker.enable = true;
+  services.gnome.gnome-keyring.enable = true;
 
   programs.tmux = {
     enable = true;
