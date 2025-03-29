@@ -57,7 +57,10 @@
 	};
   };
 
-  xdg.portal.enable = true;
+xdg.portal = {
+  enable = true;
+  extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+};
   services.flatpak.enable = true; 
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -88,6 +91,7 @@
     python3Packages.pip
     alacritty
     firefox
+    obsidian
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
