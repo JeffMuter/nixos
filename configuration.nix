@@ -45,6 +45,7 @@
     jq
     yt-dlp
     mediamtx
+    awscli
     docker
     docker-compose
     docker-credential-helpers
