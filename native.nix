@@ -92,6 +92,7 @@ xdg.portal = {
     alacritty
     firefox
     obsidian
+    code-cursor
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
