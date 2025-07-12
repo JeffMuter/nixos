@@ -21,6 +21,7 @@
   # install and enable these packages
   environment.systemPackages = with pkgs; [
     clang # for C
+    clang-tools # tooling
     gdb # gnu debugger for C
     fzf
     stow
