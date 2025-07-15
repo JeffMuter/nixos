@@ -12,7 +12,7 @@
 
   users.users.emerald = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "input" "users" "docker" ];
+    extraGroups = [ "wheel" "video" "audio" "input" "users" "docker" ];
     shell = pkgs.zsh;
   };
 
@@ -20,8 +20,10 @@
 
   # install and enable these packages
   environment.systemPackages = with pkgs; [
+    clang # for C
+    clang-tools # tooling
+    gdb # gnu debugger for C
     fzf
-    gcc
     stow
     zsh
     zsh-syntax-highlighting
@@ -63,6 +65,7 @@
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     nethack
+    claude-code
   ];
 
   virtualisation.docker.enable = true;
