@@ -53,6 +53,7 @@
     protoc-gen-go
     protoc-gen-go-grpc
     hugo 	 	      # blog compiler
+    gofumpt
     firebase-tools            # firebase server tooling
     postgresql
     sqlite
