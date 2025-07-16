@@ -24,6 +24,7 @@
     clang-tools # tooling
     gdb # gnu debugger for C
     fzf
+    direnv
     stow
     zsh
     zsh-syntax-highlighting
