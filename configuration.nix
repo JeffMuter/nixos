@@ -55,6 +55,7 @@
     protoc-gen-go
     protoc-gen-go-grpc
     hugo 	 	      # blog compiler
+    gofumpt
     firebase-tools            # firebase server tooling
     postgresql
     sqlite
@@ -64,7 +65,6 @@
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     nethack
-    claude-code
   ];
 
   virtualisation.docker.enable = true;
