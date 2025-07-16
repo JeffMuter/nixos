@@ -62,20 +62,14 @@
         "yarn"
       ];
     };
-
     shellAliases = {
-	win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
+        win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
     };
-    
     histSize = 10000;
     histFile = "$HOME/.zsh_history";
-    
-    # Add these lines to prevent the new user setup wizard
     enableCompletion = true;
     autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;   
-    
-    # Use interactiveShellInit instead of initExtraBeforeCompInit
+    syntaxHighlighting.enable = true;
     interactiveShellInit = ''
       HISTFILE=~/.zsh_history
       HISTSIZE=10000
@@ -86,13 +80,42 @@
       setopt HIST_IGNORE_DUPS
       setopt HIST_FIND_NO_DUPS
       setopt HIST_REDUCE_BLANKS
+      
+      # Dotfiles sync functions
+      dot-push() {
+        echo "Syncing dotfiles from $(hostname)..."
+        cd ~/.dotfiles || return 1
+        stow -R * 2>/dev/null
+        git add .
+        git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
+        git push origin master
+        echo "Dotfiles pushed"
+      }
+      
+      dot-pull() {
+        echo "Pulling dotfiles to $(hostname)..."
+        cd ~/.dotfiles || return 1
+        git pull
+        stow -R * --adopt 2>/dev/null
+        git add . 2>/dev/null
+        git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
+        git push origin master 2>/dev/null || true
+        echo "Dotfiles synced"
+      }
+      
+      dot-sync() {
+        dot-pull && dot-push
+      }
+      
+      # Short aliases
+      alias dp='dot-push'
+      alias dl='dot-pull'
+      alias ds='dot-sync'
     '';
   };
-
   environment.variables = {
     ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
   };
-
   environment.sessionVariables = {
     GOPATH = [ "$HOME/go" ];
   };
