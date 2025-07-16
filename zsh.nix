@@ -9,7 +9,6 @@
         "git"
         "z"
         "fzf"
-        "fzf-zsh"
         "colored-man-pages"
         "command-not-found"
         "zsh-interactive-cd"
