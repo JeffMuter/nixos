@@ -134,9 +134,6 @@
               return 1
           }
           
-          # Get current branch
-          local current_branch=$(git branch --show-current)
-          
           # Check for uncommitted changes
           local has_uncommitted=""
           if ! git diff-index --quiet HEAD --; then
@@ -162,7 +159,6 @@
           local ahead_count=$(git rev-list --count HEAD ^origin/master 2>/dev/null || echo "0")
           local behind_count=$(git rev-list --count origin/master ^HEAD 2>/dev/null || echo "0")
           
-          echo "dotfiles: branch $current_branch"
           
           if [[ "$local_commit" == "$remote_commit" ]]; then
               echo "dotfiles: up to date"
@@ -242,9 +238,6 @@ nix-status() {
         return 1
     }
     
-    # Get current branch
-    local current_branch=$(git branch --show-current)
-    
     # Check for uncommitted changes
     local has_uncommitted=""
     if ! git diff-index --quiet HEAD --; then
@@ -270,7 +263,6 @@ nix-status() {
     local ahead_count=$(git rev-list --count HEAD ^origin/master 2>/dev/null || echo "0")
     local behind_count=$(git rev-list --count origin/master ^HEAD 2>/dev/null || echo "0")
     
-    echo "nixos: branch $current_branch"
     
     if [[ "$local_commit" == "$remote_commit" ]]; then
         echo "nixos: up to date"
