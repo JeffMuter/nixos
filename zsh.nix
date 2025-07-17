@@ -186,37 +186,124 @@
           echo ""
       }
 
-      # Quick status check (minimal output for shell startup)
-      dot-status-quick() {
-          local dotfiles_dir="$HOME/.dotfiles"
-          
-          # Quick exit if no dotfiles or not git repo
-          [[ ! -d "$dotfiles_dir/.git" ]] && return 0
-          
-          cd "$dotfiles_dir" || return 0
-          
-          # Quick fetch (with timeout)
-          timeout 3 git fetch origin master 2>/dev/null || return 0
-          
-          local behind_count=$(git rev-list --count origin/master ^HEAD 2>/dev/null || echo "0")
-          local uncommitted=$(git diff-index --quiet HEAD -- || echo "dirty")
-          
-          if [[ "$behind_count" -gt 0 ]]; then
-              echo "dotfiles: $behind_count commits behind (dl)"
-          elif [[ "$uncommitted" == "dirty" ]]; then
-              echo "dotfiles: uncommitted changes (dp)"
-          fi
-      }
-      
       # Short aliases
       alias dp='dot-push'
       alias dl='dot-pull'
       alias ds='dot-sync'
       alias dst='dot-status'
+
+nix-push() {
+  echo "Syncing NixOS config from $(hostname)..."
+  cd ~/nixos || return 1
+  git add .
+  git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
+  git push origin master
+  echo "NixOS config pushed"
+}
+
+nix-pull() {
+  echo "Pulling NixOS config to $(hostname)..."
+  cd ~/nixos || return 1
+  git pull
+  git add . 2>/dev/null
+  git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
+  git push origin master 2>/dev/null || true
+  echo "NixOS config synced"
+}
+
+nix-sync() {
+  nix-pull && nix-push
+}
+
+# NixOS status function
+nix-status() {
+    local nixos_dir="$HOME/nixos"
+    
+    # Check if nixos directory exists
+    if [[ ! -d "$nixos_dir" ]]; then
+        echo "nixos: directory not found at $nixos_dir"
+        return 1
+    fi
+    
+    # Change to nixos directory
+    cd "$nixos_dir" || return 1
+    
+    # Check if it's a git repository
+    if [[ ! -d ".git" ]]; then
+        echo "nixos: not a git repository"
+        return 1
+    fi
+    
+    echo "nixos: checking status..."
+    
+    # Fetch latest changes from remote (quietly)
+    git fetch origin master 2>/dev/null || {
+        echo "nixos: could not fetch from remote"
+        return 1
+    }
+    
+    # Get current branch
+    local current_branch=$(git branch --show-current)
+    
+    # Check for uncommitted changes
+    local has_uncommitted=""
+    if ! git diff-index --quiet HEAD --; then
+        has_uncommitted="yes"
+    fi
+    
+    # Check for untracked files
+    local has_untracked=""
+    if [[ -n $(git ls-files --others --exclude-standard) ]]; then
+        has_untracked="yes"
+    fi
+    
+    # Compare local with remote
+    local local_commit=$(git rev-parse HEAD)
+    local remote_commit=$(git rev-parse origin/master 2>/dev/null)
+    
+    if [[ -z "$remote_commit" ]]; then
+        echo "nixos: could not get remote commit info"
+        return 1
+    fi
+    
+    # Determine status
+    local ahead_count=$(git rev-list --count HEAD ^origin/master 2>/dev/null || echo "0")
+    local behind_count=$(git rev-list --count origin/master ^HEAD 2>/dev/null || echo "0")
+    
+    echo "nixos: branch $current_branch"
+    
+    if [[ "$local_commit" == "$remote_commit" ]]; then
+        echo "nixos: up to date"
+    elif [[ "$behind_count" -gt 0 && "$ahead_count" -eq 0 ]]; then
+        echo "nixos: behind by $behind_count commits (run 'nl')"
+    elif [[ "$ahead_count" -gt 0 && "$behind_count" -eq 0 ]]; then
+        echo "nixos: ahead by $ahead_count commits (run 'np')"
+    elif [[ "$ahead_count" -gt 0 && "$behind_count" -gt 0 ]]; then
+        echo "nixos: diverged - $ahead_count ahead, $behind_count behind"
+    fi
+    
+    # Show local changes if any
+    if [[ -n "$has_uncommitted" ]]; then
+        echo "nixos: uncommitted changes"
+    fi
+    
+    if [[ -n "$has_untracked" ]]; then
+        echo "nixos: untracked files"
+    fi
+    
+    echo ""
+}
+
+# Short aliases
+alias np='nix-push'
+alias nl='nix-pull'
+alias ns='nix-sync'
+alias nst='nix-status'
       
-      # Run quick status check on shell startup (only for interactive shells)
+      # Run nix & dotfile status check on shell startup (only for interactive shells)
       if [[ $- == *i* ]]; then
-          dot-status-quick
+        nix-status
+        dot-status
       fi
     '';
   };
