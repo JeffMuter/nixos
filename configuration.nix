@@ -35,6 +35,7 @@
     tmux
     go
     zig
+    python3
     tinygo
     terraform
     azure-cli
