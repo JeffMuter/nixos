@@ -90,6 +90,7 @@
         git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
         git push origin master
         echo "Dotfiles pushed"
+        cd ~
       }
       
       dot-pull() {
@@ -101,6 +102,7 @@
         git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
         git push origin master 2>/dev/null || true
         echo "Dotfiles synced"
+        cd ~
       }
       
       dot-sync() {
@@ -180,6 +182,8 @@
           fi
           
           echo ""
+
+          cd ~
       }
 
       # Short aliases
@@ -195,6 +199,7 @@ nix-push() {
   git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
   git push origin master
   echo "NixOS config pushed"
+  cd ~
 }
 
 nix-pull() {
@@ -205,6 +210,7 @@ nix-pull() {
   git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
   git push origin master 2>/dev/null || true
   echo "NixOS config synced"
+  cd ~
 }
 
 nix-sync() {
@@ -284,6 +290,8 @@ nix-status() {
     fi
     
     echo ""
+
+    cd ~
 }
 
 # Short aliases
