@@ -79,6 +79,10 @@
       yank
       sensible
     ];
+    extraConfig = ''
+      set -g @resurrect-capture-pane-contents 'on'
+      set -g @resurrect-strategy-vim 'session'
+      '';
   };
 
   programs.git = {
