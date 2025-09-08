@@ -14,6 +14,8 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "video" "audio" "input" "users" "docker" ];
     shell = pkgs.zsh;
+    uid = 1000;  # Explicitly set to match WSL expectation
+    home = "/home/emerald";
   };
 
   nixpkgs.config.allowUnfree = true; 
