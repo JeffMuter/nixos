@@ -286,6 +286,7 @@
       
       # Run status checks on shell startup (only for interactive shells inside tmux)
       if [[ $- == *i* ]] && [[ -n "$TMUX" ]]; then
+        clear
         nix-status
         dot-status
       fi
