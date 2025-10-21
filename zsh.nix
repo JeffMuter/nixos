@@ -72,9 +72,15 @@
     autosuggestions.enable = true;
     syntaxHighlighting.enable = true;
     interactiveShellInit = ''
+
       # Auto-start tmux (only in interactive shells, not already in tmux)
       if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
         tmux attach-session -t default || tmux new-session -s default
+      fi
+
+      # Add Windows paths if not present
+      if [[ ! "$PATH" =~ "/mnt/c/Windows" ]]; then
+        export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
       fi
 
       HISTFILE=~/.zsh_history
@@ -161,14 +167,14 @@
         
         if [[ "$local_commit" == "$remote_commit" ]]; then
           echo "dotfiles: up to date"
-        elif [[ "$behind_count" -gt 0 && "$ahead_count" -eq 0 ]]; then
+        elif (( behind_count > 0 && ahead_count == 0 )); then
           echo "dotfiles: behind by $behind_count commits (run 'dl')"
-        elif [[ "$ahead_count" -gt 0 && "$behind_count" -eq 0 ]]; then
+        elif (( ahead_count > 0 && behind_count == 0 )); then
           echo "dotfiles: ahead by $ahead_count commits (run 'dp')"
-        elif [[ "$ahead_count" -gt 0 && "$behind_count" -gt 0 ]]; then
+        elif (( ahead_count > 0 && behind_count > 0 )); then
           echo "dotfiles: diverged - $ahead_count ahead, $behind_count behind"
         fi
-        
+       
         if [[ -n "$has_uncommitted" ]]; then
           echo "dotfiles: uncommitted changes"
         fi
@@ -181,11 +187,58 @@
         cd ~
       }
 
+     tmux-work() {
+  local session_name="work"
+  
+  # Check if we're already in tmux
+  if [[ -z "$TMUX" ]]; then
+    echo "Starting tmux work session..."
+  fi
+  
+  # Check if session already exists
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "Attaching to existing work session..."
+    if [[ -n "$TMUX" ]]; then
+      tmux switch-client -t "$session_name"
+    else
+      tmux attach-session -t "$session_name"
+    fi
+    return 0
+  fi
+  
+  echo "Creating new work session..."
+  
+  # Create new session with first window (claude)
+  tmux new-session -d -s "$session_name" -n "claude" -c "$HOME/repos/cloudinaryFileSync/src"
+  
+  # In the first window, start nix-shell and run claude when ready
+  tmux send-keys -t "$session_name:claude" "nix-shell --run 'claude'" C-m
+  
+  # Create second window (code)
+  tmux new-window -t "$session_name" -n "code" -c "$HOME/repos/cloudinaryFileSync/src/cloudinary-sync-files/templates"
+  
+  # Create third window (watcher)
+  tmux new-window -t "$session_name" -n "watcher" -c "$HOME/repos/cloudinaryFileSync/src/watcher"
+  
+  # Switch to claude window (window 1)
+  tmux select-window -t "$session_name:claude"
+  
+  # Attach or switch to the session
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+
       # Short aliases
       alias dp='dot-push'
       alias dl='dot-pull'
       alias ds='dot-sync'
       alias dst='dot-status'
+      alias tw='tmux-work' 
+
 
       nix-push() {
         echo "Syncing NixOS config from $(hostname)..."
@@ -258,11 +311,11 @@
         
         if [[ "$local_commit" == "$remote_commit" ]]; then
           echo "nixos: up to date"
-        elif [[ "$behind_count" -gt 0 && "$ahead_count" -eq 0 ]]; then
+        elif (( behind_count > 0 && ahead_count == 0 )); then
           echo "nixos: behind by $behind_count commits (run 'nl')"
-        elif [[ "$ahead_count" -gt 0 && "$behind_count" -eq 0 ]]; then
+        elif (( ahead_count > 0 && behind_count == 0 )); then
           echo "nixos: ahead by $ahead_count commits (run 'np')"
-        elif [[ "$ahead_count" -gt 0 && "$behind_count" -gt 0 ]]; then
+        elif (( ahead_count > 0 && behind_count > 0 )); then
           echo "nixos: diverged - $ahead_count ahead, $behind_count behind"
         fi
         
@@ -285,7 +338,7 @@
       alias nst='nix-status'
       
       # Run status checks on shell startup (only for interactive shells inside tmux)
-      if [[ $- == *i* ]] && [[ -n "$TMUX" ]]; then
+      if [[ $- == *i* ]] && [[ -n "$TMUX" ]] && [[ "$(tmux display-message -p '#S')" == "default" ]]; then
         clear
         nix-status
         dot-status
