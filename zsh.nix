@@ -92,6 +92,87 @@
       setopt HIST_IGNORE_DUPS
       setopt HIST_FIND_NO_DUPS
       setopt HIST_REDUCE_BLANKS
+
+
+tmux-work() {
+  local session_name="work"
+
+  if [[ -z "$TMUX" ]]; then
+    echo "Starting tmux work session..."
+  fi
+
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "Attaching to existing work session..."
+    if [[ -n "$TMUX" ]]; then
+      tmux switch-client -t "$session_name"
+    else
+      tmux attach-session -t "$session_name"
+    fi
+    return 0
+  fi
+
+  echo "Creating new work session..."
+
+  # Determine if we're currently in tmux
+  local in_tmux=""
+  if [[ -n "$TMUX" ]]; then
+    in_tmux="yes"
+  fi
+
+  # Create session with first window
+  tmux new-session -d -s "$session_name"
+  
+  # Navigate to the directory for window 0
+  tmux send-keys -t "$session_name:0" "cd $HOME/repos/cloudinaryFileSync/src" C-m
+  
+  # Rename window 0
+  tmux rename-window -t "$session_name:0" "claude"
+  
+  # Enter nix-shell
+  tmux send-keys -t "$session_name:0" "nix-shell" C-m
+  
+  # Wait a bit for nix-shell to load
+  sleep 1
+  
+  # Run claude inside the nix-shell
+  tmux send-keys -t "$session_name:0" "claude" C-m
+
+  # Create second window
+  tmux new-window -t "$session_name"
+  
+  # Navigate to directory for window 1
+  tmux send-keys -t "$session_name:1" "cd $HOME/repos/cloudinaryFileSync/src/cloudinary-sync-files/templates" C-m
+  
+  # Rename window 1
+  tmux rename-window -t "$session_name:1" "code"
+
+  # Create third window
+  tmux new-window -t "$session_name"
+  
+  # Navigate to directory for window 2
+  tmux send-keys -t "$session_name:2" "cd $HOME/repos/cloudinaryFileSync/src/watcher" C-m
+  
+  # Rename window 2
+  tmux rename-window -t "$session_name:2" "watcher"
+
+  # Go back to window 0
+  tmux select-window -t "$session_name:0"
+
+# If we were in tmux, add a small delay before switching
+  if [[ -n "$in_tmux" ]]; then
+    sleep 0.2
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+
+  # Attach to the session
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
       
       # Dotfiles sync functions
       dot-push() {
@@ -186,50 +267,6 @@
         echo ""
         cd ~
       }
-
-     tmux-work() {
-  local session_name="work"
-  
-  # Check if we're already in tmux
-  if [[ -z "$TMUX" ]]; then
-    echo "Starting tmux work session..."
-  fi
-  
-  # Check if session already exists
-  if tmux has-session -t "$session_name" 2>/dev/null; then
-    echo "Attaching to existing work session..."
-    if [[ -n "$TMUX" ]]; then
-      tmux switch-client -t "$session_name"
-    else
-      tmux attach-session -t "$session_name"
-    fi
-    return 0
-  fi
-  
-  echo "Creating new work session..."
-  
-  # Create new session with first window (claude)
-  tmux new-session -d -s "$session_name" -n "claude" -c "$HOME/repos/cloudinaryFileSync/src"
-  
-  # In the first window, start nix-shell and run claude when ready
-  tmux send-keys -t "$session_name:claude" "nix-shell --run 'claude'" C-m
-  
-  # Create second window (code)
-  tmux new-window -t "$session_name" -n "code" -c "$HOME/repos/cloudinaryFileSync/src/cloudinary-sync-files/templates"
-  
-  # Create third window (watcher)
-  tmux new-window -t "$session_name" -n "watcher" -c "$HOME/repos/cloudinaryFileSync/src/watcher"
-  
-  # Switch to claude window (window 1)
-  tmux select-window -t "$session_name:claude"
-  
-  # Attach or switch to the session
-  if [[ -n "$TMUX" ]]; then
-    tmux switch-client -t "$session_name"
-  else
-    tmux attach-session -t "$session_name"
-  fi
-}
 
 
       # Short aliases
