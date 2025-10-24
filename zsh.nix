@@ -73,106 +73,146 @@
     syntaxHighlighting.enable = true;
     interactiveShellInit = ''
 
-      # Auto-start tmux (only in interactive shells, not already in tmux)
-      if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-        tmux attach-session -t default || tmux new-session -s default
-      fi
-
-      # Add Windows paths if not present
-      if [[ ! "$PATH" =~ "/mnt/c/Windows" ]]; then
-        export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
-      fi
-
-      HISTFILE=~/.zsh_history
-      HISTSIZE=10000
-      SAVEHIST=10000
-      setopt appendhistory
-      setopt SHARE_HISTORY
-      setopt HIST_EXPIRE_DUPS_FIRST
-      setopt HIST_IGNORE_DUPS
-      setopt HIST_FIND_NO_DUPS
-      setopt HIST_REDUCE_BLANKS
-
-
-tmux-work() {
-  local session_name="work"
-
-  if [[ -z "$TMUX" ]]; then
-    echo "Starting tmux work session..."
-  fi
-
-  if tmux has-session -t "$session_name" 2>/dev/null; then
-    echo "Attaching to existing work session..."
-    if [[ -n "$TMUX" ]]; then
-      tmux switch-client -t "$session_name"
-    else
-      tmux attach-session -t "$session_name"
+    # Auto-start tmux (only in interactive shells, not already in tmux)
+    if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+      tmux attach-session -t default || tmux new-session -s default
     fi
-    return 0
-  fi
 
-  echo "Creating new work session..."
+    # Add Windows paths if not present
+    if [[ ! "$PATH" =~ "/mnt/c/Windows" ]]; then
+      export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
+    fi
 
-  # Determine if we're currently in tmux
-  local in_tmux=""
-  if [[ -n "$TMUX" ]]; then
-    in_tmux="yes"
-  fi
+    HISTFILE=~/.zsh_history
+    HISTSIZE=10000
+    SAVEHIST=10000
+    setopt appendhistory
+    setopt SHARE_HISTORY
+    setopt HIST_EXPIRE_DUPS_FIRST
+    setopt HIST_IGNORE_DUPS
+    setopt HIST_FIND_NO_DUPS
+    setopt HIST_REDUCE_BLANKS
 
-  # Create session with first window
-  tmux new-session -d -s "$session_name"
-  
-  # Navigate to the directory for window 0
-  tmux send-keys -t "$session_name:0" "cd $HOME/repos/cloudinaryFileSync/src" C-m
-  
-  # Rename window 0
-  tmux rename-window -t "$session_name:0" "claude"
-  
-  # Enter nix-shell
-  tmux send-keys -t "$session_name:0" "nix-shell" C-m
-  
-  # Wait a bit for nix-shell to load
-  sleep 1
-  
-  # Run claude inside the nix-shell
-  tmux send-keys -t "$session_name:0" "claude" C-m
 
-  # Create second window
-  tmux new-window -t "$session_name"
-  
-  # Navigate to directory for window 1
-  tmux send-keys -t "$session_name:1" "cd $HOME/repos/cloudinaryFileSync/src/cloudinary-sync-files/templates" C-m
-  
-  # Rename window 1
-  tmux rename-window -t "$session_name:1" "code"
+    tmux-work() {
+      local session_name="work"
+    
+      if [[ -z "$TMUX" ]]; then
+        echo "Starting tmux work session..."
+      fi
+    
+      if tmux has-session -t "$session_name" 2>/dev/null; then
+        echo "Attaching to existing work session..."
+        if [[ -n "$TMUX" ]]; then
+          tmux switch-client -t "$session_name"
+        else
+          tmux attach-session -t "$session_name"
+        fi
+        return 0
+      fi
+    
+      echo "Creating new work session..."
+    
+      # Determine if we're currently in tmux
+      local in_tmux=""
+      if [[ -n "$TMUX" ]]; then
+        in_tmux="yes"
+      fi
+    
+      # Create session with first window
+      tmux new-session -d -s "$session_name"
+      
+      # Navigate to the directory for window 0
+      tmux send-keys -t "$session_name:0" "cd $HOME/repos/cloudinaryFileSync/src" C-m
+      
+      # Rename window 0
+      tmux rename-window -t "$session_name:0" "claude"
+      
+      # Enter nix-shell
+      tmux send-keys -t "$session_name:0" "nix-shell" C-m
+      
+      # Wait a bit for nix-shell to load
+      sleep 1
+      
+      # Run claude inside the nix-shell
+      tmux send-keys -t "$session_name:0" "claude" C-m
+    
+      # Create second window
+      tmux new-window -t "$session_name"
+      
+      # Navigate to directory for window 1
+      tmux send-keys -t "$session_name:1" "cd $HOME/repos/cloudinaryFileSync/src/cloudinary-sync-files/templates" C-m
+      
+      # Rename window 1
+      tmux rename-window -t "$session_name:1" "code"
+    
+      # Create third window
+      tmux new-window -t "$session_name"
+      
+      # Navigate to directory for window 2
+      tmux send-keys -t "$session_name:2" "cd $HOME/repos/cloudinaryFileSync/src/watcher" C-m
+      
+      # Rename window 2
+      tmux rename-window -t "$session_name:2" "watcher"
+    
+      # Go back to window 0
+      tmux select-window -t "$session_name:0"
+    
+    # If we were in tmux, add a small delay before switching
+      if [[ -n "$in_tmux" ]]; then
+        sleep 0.2
+        tmux switch-client -t "$session_name"
+      else
+        tmux attach-session -t "$session_name"
+      fi
+    
+      # Attach to the session
+      if [[ -n "$TMUX" ]]; then
+        tmux switch-client -t "$session_name"
+      else
+        tmux attach-session -t "$session_name"
+      fi
+    }
 
-  # Create third window
-  tmux new-window -t "$session_name"
-  
-  # Navigate to directory for window 2
-  tmux send-keys -t "$session_name:2" "cd $HOME/repos/cloudinaryFileSync/src/watcher" C-m
-  
-  # Rename window 2
-  tmux rename-window -t "$session_name:2" "watcher"
+    tmux-project() {
+      local selected=$(find ~/repos -mindepth 1 -maxdepth 1 -type d | fzf)
+      
+      if [[ -z $selected ]]; then
+        return 0
+      fi
+      
+      local session_name=$(basename "$selected" | tr . _)
+      
+      if ! tmux has-session -t "$session_name" 2>/dev/null; then
+        # Create new session
+        tmux new-session -d -s "$session_name" -c "$selected"
 
-  # Go back to window 0
-  tmux select-window -t "$session_name:0"
-
-# If we were in tmux, add a small delay before switching
-  if [[ -n "$in_tmux" ]]; then
-    sleep 0.2
-    tmux switch-client -t "$session_name"
-  else
-    tmux attach-session -t "$session_name"
-  fi
-
-  # Attach to the session
-  if [[ -n "$TMUX" ]]; then
-    tmux switch-client -t "$session_name"
-  else
-    tmux attach-session -t "$session_name"
-  fi
-}
+        tmux rename-window -t "$session_name:0" "claude"
+        tmux send-keys -t "$session_name:0" "cd $selected && nix-shell" C-m
+        sleep 1
+        tmux send-keys -t "$session_name:0" "claude" C-m
+        
+        tmux new-window -t "$session_name" -c "$selected"
+        tmux rename-window -t "$session_name:1" "code"
+        tmux send-keys -t "$session_name:1" "nvim ."
+        
+        tmux new-window -t "$session_name" -c "$selected"
+        tmux rename-window -t "$session_name:2" "terminal"
+        
+        tmux new-window -t "$session_name" -c "$selected"
+        tmux rename-window -t "$session_name:3" "db"
+        tmux send-keys -t "$session_name:1" "nvim ."
+        tmux send-keys -t "$session_name:1" ":DBUI"
+        
+        tmux select-window -t "$session_name:0"
+      fi
+      
+      if [[ -n "$TMUX" ]]; then
+        tmux switch-client -t "$session_name"
+      else
+        tmux attach-session -t "$session_name"
+      fi
+    }
       
       # Dotfiles sync functions
       dot-push() {
@@ -267,14 +307,6 @@ tmux-work() {
         echo ""
         cd ~
       }
-
-
-      # Short aliases
-      alias dp='dot-push'
-      alias dl='dot-pull'
-      alias ds='dot-sync'
-      alias dst='dot-status'
-      alias tw='tmux-work' 
 
 
       nix-push() {
@@ -373,6 +405,18 @@ tmux-work() {
       alias nl='nix-pull'
       alias ns='nix-sync'
       alias nst='nix-status'
+
+      # dotfile aliases
+      alias dp='dot-push'
+      alias dl='dot-pull'
+      alias ds='dot-sync'
+      alias dst='dot-status'
+
+      # tmux session management aliases
+      alias tw='tmux-work' 
+      alias tp='tmux-project'
+
+
       
       # Run status checks on shell startup (only for interactive shells inside tmux)
       if [[ $- == *i* ]] && [[ -n "$TMUX" ]] && [[ "$(tmux display-message -p '#S')" == "default" ]]; then
