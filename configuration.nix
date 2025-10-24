@@ -8,7 +8,12 @@
 
   imports = if builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop"
     then  [ ./wsl.nix ./zsh.nix <nixos-wsl/modules> ]
-    else  [ ./native.nix ./hardware-configuration.nix ./zsh.nix ];
+    else  [ 
+#     ./native.nix 
+      ./hardware-configuration.nix 
+      ./zsh.nix 
+      ./native-hyperland.nix 
+    ];
 
   users.users.emerald = {
     isNormalUser = true;
