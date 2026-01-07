@@ -105,11 +105,14 @@
   environment.systemPackages = with pkgs; [
     pavucontrol
     alsa-utils
+    ghostty
+
     # i3 # window manager with x11
     # flameshot # x11 display server's screenshot tool
     # for wayland/hyprland specifically
     wofi
     waybar
+    hyprpaper
     grim
     slurp
     wl-clipboard
