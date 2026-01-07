@@ -67,17 +67,6 @@
   # Fix the deprecated displayManager option
   # services.displayManager.defaultSession = "none+i3";
   
-  # Import the unstable nixpkgs just for cursor
-  nixpkgs.overlays = [
-    (final: prev: {
-      # Specifically pull Cursor from unstable with proper unfree config
-      code-cursor = (import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {
-        inherit (pkgs) system;
-        config.allowUnfree = true;  # This is the key fix
-      }).code-cursor;
-    })
-  ];
-
   xdg.portal = {
     enable = true;
     extraPortals = [ 
@@ -129,7 +118,6 @@
     alacritty
     firefox
     obsidian
-    code-cursor
     appimage-run
     fuse
     brightnessctl

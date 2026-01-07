@@ -1,5 +1,12 @@
 { config, lib, pkgs, ... }:
 
+let
+  # Automatically import unstable channel
+  unstable = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz";
+  }) { config = config.nixpkgs.config; };
+in
+
 {
   # sets the version/channel of Nix i want to use
   system.stateVersion = "24.11"; 
@@ -9,11 +16,10 @@
   imports = if builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop"
     then  [ ./wsl.nix ./zsh.nix <nixos-wsl/modules> ]
     else  [ 
-#     ./native.nix 
+      ./native.nix 
       ./hardware-configuration.nix 
       ./zsh.nix 
-      ./native-hyperland.nix 
-    ];
+      ./native-hyperland.nix ];
 
   users.users.emerald = {
     isNormalUser = true;
@@ -29,6 +35,7 @@
   environment.systemPackages = with pkgs; [
     clang # for C
     clang-tools # tooling
+    gcc
     gdb # gnu debugger for C
     fzf
     direnv
@@ -40,7 +47,7 @@
     git
     neovim-unwrapped
     tmux
-    go
+    unstable.go
     zig
     python3
     tinygo
