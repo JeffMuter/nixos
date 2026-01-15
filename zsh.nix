@@ -93,6 +93,12 @@
     setopt HIST_FIND_NO_DUPS
     setopt HIST_REDUCE_BLANKS
 
+    hyprctl() {
+      if [[ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]] || ! [[ -S "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock" ]]; then
+        export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t $XDG_RUNTIME_DIR/hypr/ 2>/dev/null | head -n 1)
+      fi
+      command hyprctl "$@"
+    }
 
     tmux-work() {
       local session_name="work"

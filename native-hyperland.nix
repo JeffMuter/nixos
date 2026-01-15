@@ -2,16 +2,21 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
 {pkgs, config, ... }:
+
+let
+  retrosmart-cursors = pkgs.callPackage ./retrosmart-cursors.nix {};
+in
 {
   # Bootloader.
   boot.loader.grub.enable = true;
+  boot.loader.grub.useOSProber = true;
   boot.loader.grub.mirroredBoots = [
    { 
       devices = [ "/dev/sda" ]; 
       path = "/boot"; 
    }
   ];
-  boot.loader.grub.useOSProber = true;
+
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # Configure network proxy if necessary
@@ -63,6 +68,9 @@
       wayland.enable = true;
     };
   };
+
+  # Enable dconf for GTK applications
+  programs.dconf.enable = true;  
 
   # Fix the deprecated displayManager option
   # services.displayManager.defaultSession = "none+i3";
@@ -122,12 +130,18 @@
     fuse
     brightnessctl
     light
+    retrosmart-cursors
+    gsettings-desktop-schemas
+    libsForQt5.qt5.qttools
   ];
 
   # Environment variables for Wayland compatibility
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";      # Electron apps use Wayland
     MOZ_ENABLE_WAYLAND = "1";  # Firefox uses Wayland
+    XDG_CURRENT_DESKTOP = "Hyprland";
+    XCURSOR_THEME = "retrosmart-xcursor-white";
+    XCURSOR_SIZE = "24";
   };
 
   # Some programs need SUID wrappers, can be configured further or are
