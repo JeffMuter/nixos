@@ -141,7 +141,7 @@ in
     MOZ_ENABLE_WAYLAND = "1";  # Firefox uses Wayland
     XDG_CURRENT_DESKTOP = "Hyprland";
     XCURSOR_THEME = "retrosmart-xcursor-white";
-    XCURSOR_SIZE = "24";
+    XCURSOR_SIZE = "33";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

@@ -83,6 +83,9 @@
       export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
     fi
 
+    # Add bashScripts to PATH
+    export PATH="$HOME/.bashScripts:$PATH"
+
     HISTFILE=~/.zsh_history
     HISTSIZE=10000
     SAVEHIST=10000
