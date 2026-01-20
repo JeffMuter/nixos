@@ -73,6 +73,11 @@
     syntaxHighlighting.enable = true;
     interactiveShellInit = ''
 
+    # Source secrets (API keys, etc.) - this file is NOT tracked in git
+    if [[ -f "$HOME/.config/secrets/env" ]]; then
+      source "$HOME/.config/secrets/env"
+    fi
+
     # Auto-start tmux (only in interactive shells, not already in tmux)
     if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
       tmux attach-session -t default || tmux new-session -s default

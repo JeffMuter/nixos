@@ -5,6 +5,11 @@ let
   unstable = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz";
   }) { config = config.nixpkgs.config; };
+
+  # Nix User Repository (for charmbracelet packages)
+  nur = import (builtins.fetchTarball {
+    url = "https://github.com/nix-community/NUR/archive/main.tar.gz";
+  }) { inherit pkgs; };
 in
 
 {
@@ -81,10 +86,19 @@ in
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     nethack
+    nur.repos.charmbracelet.crush  # AI terminal assistant
   ];
 
   virtualisation.docker.enable = true;
   services.gnome.gnome-keyring.enable = true;
+
+  # Fonts
+  fonts.packages = with pkgs; [
+    scientifica
+  ];
+
+  # Allow running dynamically linked binaries (needed for some NUR packages like crush)
+  programs.nix-ld.enable = true;
 
   programs.tmux = {
     enable = true;
