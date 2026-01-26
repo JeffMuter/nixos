@@ -10,6 +10,9 @@ let
   nur = import (builtins.fetchTarball {
     url = "https://github.com/nix-community/NUR/archive/main.tar.gz";
   }) { inherit pkgs; };
+
+  # Import local grofer package
+  grofer = pkgs.callPackage ./grofer.nix {};
 in
 
 {
@@ -68,6 +71,7 @@ in
     jq
     yt-dlp
     mediamtx
+    tmux-mem-cpu-load
     awscli
     docker
     docker-compose
@@ -86,6 +90,7 @@ in
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     nethack
+    grofer                    # system monitoring tool
     nur.repos.charmbracelet.crush  # AI terminal assistant
   ];
 
@@ -110,6 +115,9 @@ in
     extraConfig = ''
       set -g @resurrect-capture-pane-contents 'on'
       set -g @resurrect-strategy-vim 'session'
+      set -g status-right "#(~/.tmux/plugins/tmux-powerline/powerline.sh right)"
+      set -g status-left-length 40
+      set -g status-right-length 80
       '';
   };
 

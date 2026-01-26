@@ -1,0 +1,36 @@
+--- a/pkg/metrics/general/serve_stats.go
++++ b/pkg/metrics/general/serve_stats.go
+@@ -72,16 +72,27 @@ func ServeInfo(ctx context.Context, cpuChannel chan AggregatedMetrics) error {
+ // ServeBattery serves battery percentage information
+ func ServeBattery(ctx context.Context, cpuChannel chan AggregatedMetrics) error {
+ 
+-	_, err1 := os.Stat("/sys/class/power_supply/BAT0/charge_now")
+-	_, err2 := os.Stat("/sys/class/power_supply/BAT0/charge_full")
++	// Try charge_now/charge_full first (older batteries)
++	chargePath := "/sys/class/power_supply/BAT0/charge_now"
++	fullPath := "/sys/class/power_supply/BAT0/charge_full"
++	
++	_, err1 := os.Stat(chargePath)
++	_, err2 := os.Stat(fullPath)
++	
++	// Fall back to energy_now/energy_full (modern batteries)
++	if os.IsNotExist(err1) || os.IsNotExist(err2) {
++		chargePath = "/sys/class/power_supply/BAT0/energy_now"
++		fullPath = "/sys/class/power_supply/BAT0/energy_full"
++	}
+ 
+ 	data := AggregatedMetrics{
+ 		FieldSet:       "BATTERY",
+ 		BatteryPercent: 0,
+ 	}
+ 
+-	if err1 == nil && err2 == nil {
+-		currentBS, _ := ioutil.ReadFile("/sys/class/power_supply/BAT0/charge_now")
+-		fullBS, _ := ioutil.ReadFile("/sys/class/power_supply/BAT0/charge_full")
++	currentBS, errRead1 := ioutil.ReadFile(chargePath)
++	fullBS, errRead2 := ioutil.ReadFile(fullPath)
++	
++	if errRead1 == nil && errRead2 == nil {
+ 
+ 		current, err1 := strconv.ParseFloat(strings.Trim(string(currentBS), "\t\n "), 64)
+ 		if err1 != nil {
