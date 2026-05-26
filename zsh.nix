@@ -88,8 +88,9 @@
       export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
     fi
 
-    # Add bashScripts to PATH
+    # Add bashScripts and npm-global bins to PATH
     export PATH="$HOME/.bashScripts:$PATH"
+    export PATH="$HOME/.npm-global/bin:$PATH"
 
     HISTFILE=~/.zsh_history
     HISTSIZE=10000
