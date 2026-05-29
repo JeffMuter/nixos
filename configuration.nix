@@ -61,8 +61,8 @@ in
     tinygo
     terraform
     azure-cli
-    nodejs
-    nodePackages.npm
+    unstable.nodejs
+    unstable.nodePackages.npm
     pkgs.stylua
     unzip
     xclip
