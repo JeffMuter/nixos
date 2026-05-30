@@ -62,7 +62,6 @@ in
     terraform
     azure-cli
     unstable.nodejs
-    unstable.nodePackages.npm
     pkgs.stylua
     unzip
     xclip
