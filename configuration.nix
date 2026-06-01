@@ -62,6 +62,8 @@ in
     terraform
     azure-cli
     unstable.nodejs
+    unstable.pi-coding-agent
+    unstable.agent-browser
     pkgs.stylua
     unzip
     xclip
