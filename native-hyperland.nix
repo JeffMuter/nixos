@@ -46,8 +46,6 @@ in
     variant = "";
   };
 
-  services.udev.packages = with pkgs; [ platformio-core.udev ];
-
   # services.xserver = {
   #       enable = true;
   #       windowManager.i3 = {
@@ -119,18 +117,13 @@ in
     swayidle
     wlsunset
     # end of wayland/hyprland
-    arduino
-    arduino-cli
-    platformio
     python3
     python3Packages.pip
-    alacritty
     firefox
     obsidian
     appimage-run
     fuse
-    brightnessctl
-    light
+    brightnessctl # assumed correct over `light`; remove if wrong
     retrosmart-cursors
     gsettings-desktop-schemas
     libsForQt5.qt5.qttools

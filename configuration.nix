@@ -48,17 +48,11 @@ in
     fzf
     direnv
     stow
-    zsh
-    zsh-syntax-highlighting
-    zsh-autosuggestions
     thefuck
-    git
     neovim-unwrapped
     tmux
     unstable.go
-    zig
     python3
-    tinygo
     terraform
     azure-cli
     unstable.nodejs
@@ -68,29 +62,21 @@ in
     unzip
     xclip
     xsel
-    ffmpeg                    # used to run video-based commands, project muse is the only current use
     jq
     yt-dlp
-    mediamtx
     tmux-mem-cpu-load
     awscli
     docker
     docker-compose
     docker-credential-helpers
-    protobuf_28
-    protoc-gen-go
-    protoc-gen-go-grpc
-    hugo 	 	      # blog compiler
     gofumpt
     firebase-tools            # firebase server tooling
     postgresql
     sqlite
     tailwindcss
     ripgrep
-    lynx # text web browser.... btw
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
-    nethack
     grofer                    # system monitoring tool
     nur.repos.charmbracelet.crush  # AI terminal assistant
   ];

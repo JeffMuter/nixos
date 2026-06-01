@@ -40,7 +40,6 @@ boot.loader.grub = {
     layout = "us";
     variant = "";
   };
-  services.udev.packages = with pkgs; [ platformio-core.udev ];
   services.xserver = {
 	enable = true;
 	windowManager.i3 = {
@@ -76,19 +75,14 @@ boot.loader.grub = {
     pavucontrol
     alsa-utils
     i3
-    arduino
-    arduino-cli
     flameshot
-    platformio
     python3
     python3Packages.pip
-    alacritty
     firefox
     obsidian
     appimage-run
     fuse
-    brightnessctl
-    light
+    brightnessctl # assumed correct over `light`; remove if wrong
   ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
