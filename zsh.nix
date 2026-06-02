@@ -446,6 +446,6 @@
   };
   environment.sessionVariables = {
     GOPATH = [ "$HOME/go" ];
-    ZK_NOTEBOOK_DIR = "$HOME/repos/notes";
+    ZK_NOTEBOOK_DIR = "/mnt/c/Users/jeffmuter/repos/obsidian_emerald";
   };
 }
