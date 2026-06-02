@@ -79,6 +79,7 @@ in
     git-filter-repo
     grofer                    # system monitoring tool
     nur.repos.charmbracelet.crush  # AI terminal assistant
+    zk
   ];
 
   virtualisation.docker.enable = true;

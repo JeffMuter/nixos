@@ -446,5 +446,6 @@
   };
   environment.sessionVariables = {
     GOPATH = [ "$HOME/go" ];
+    ZK_NOTEBOOK_DIR = "$HOME/repos/notes";
   };
 }
