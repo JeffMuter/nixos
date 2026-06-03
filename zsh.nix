@@ -64,6 +64,7 @@
     };
     shellAliases = {
       win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
+      zk-pri = "zk-prioritize";
     };
 
     histSize = 10000;
@@ -446,6 +447,6 @@
   };
   environment.sessionVariables = {
     GOPATH = [ "$HOME/go" ];
-    ZK_NOTEBOOK_DIR = "/mnt/c/Users/jeffmuter/repos/obsidian_emerald";
+    ZK_NOTEBOOK_DIR = "$HOME/repos/notes/zk-notes";
   };
 }
