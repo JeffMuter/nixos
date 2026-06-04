@@ -22,7 +22,6 @@
         "nvm"
         "node"
         "pip"
-        "thefuck"
         "python"
         "rust"
         "redis-cli"
@@ -73,6 +72,8 @@
     autosuggestions.enable = true;
     syntaxHighlighting.enable = true;
     interactiveShellInit = ''
+
+    eval "$(pay-respects zsh)"
 
     # Source secrets (API keys, etc.) - this file is NOT tracked in git
     if [[ -f "$HOME/.config/secrets/env" ]]; then
@@ -435,7 +436,7 @@
 
       
       # Run status checks on shell startup (only for interactive shells inside tmux)
-      if [[ $- == *i* ]] && [[ -n "$TMUX" ]] && [[ "$(tmux display-message -p '#S')" == "default" ]]; then
+      if [[ $- == *i* ]] && [[ -n "$TMUX" ]]; then
         clear
         nix-status
         dot-status

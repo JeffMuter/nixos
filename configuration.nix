@@ -43,13 +43,13 @@ in
   # install and enable these packages
   environment.systemPackages = with pkgs; [
     clang # for C
+    pay-respects
     clang-tools # tooling
     gcc
     gdb # gnu debugger for C
     fzf
     direnv
     stow
-    thefuck
     neovim-unwrapped
     tmux
     unstable.go
@@ -118,3 +118,4 @@ in
     };
   };
 }
+
