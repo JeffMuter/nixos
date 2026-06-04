@@ -17,8 +17,9 @@ in
 
 {
   # sets the version/channel of Nix i want to use
-  system.stateVersion = "24.11"; 
+  system.stateVersion = "24.11";
   system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.11";
+  time.timeZone = "America/New_York";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   imports = if builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop"
