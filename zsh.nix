@@ -66,6 +66,10 @@
       zk-pri = "zk-prioritize";
     };
 
+    shellInit = ''
+      claude() { env -u ANTHROPIC_API_KEY command claude "$@"; }
+    '';
+
     histSize = 10000;
     histFile = "$HOME/.zsh_history";
     enableCompletion = true;
