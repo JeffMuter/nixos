@@ -67,7 +67,7 @@
     };
 
     shellInit = ''
-      claude() { env -u ANTHROPIC_API_KEY command claude "$@"; }
+      claude() { env -u ANTHROPIC_API_KEY /home/emerald/.npm-global/bin/claude "$@"; }
     '';
 
     histSize = 10000;
