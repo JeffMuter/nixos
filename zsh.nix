@@ -64,6 +64,8 @@
     shellAliases = {
       win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
       zk-pri = "zk-prioritize";
+      tmux-snap = "bash ~/.bashScripts/tmux-snap";
+      zk-brief = "bash ~/.bashScripts/zk-brief";
     };
 
     shellInit = ''
@@ -434,16 +436,147 @@
       alias dst='dot-status'
 
       # tmux session management aliases
-      alias tw='tmux-work' 
+      alias tw='tmux-work'
       alias tp='tmux-project'
 
+      _shell_greeting() {
+        local hour=$(date +%H)
+        local greeting="good morning"
+        [[ $hour -ge 12 ]] && greeting="good afternoon"
+        [[ $hour -ge 17 ]] && greeting="good evening"
+        local cl=$'\e[1;38;5;147m'
+        local cd=$'\e[38;5;242m'
+        local R=$'\e[0m'
+        printf "\n  $cl%-26s$R  $cd%s$R\n" "$greeting, emerald" "$(date '+%a %b %d  %H:%M')"
+      }
 
-      
+      _rse_display() {
+        local cache="$HOME/.cache/rse-repos"
+        [[ ! -f "$cache" ]] && rse-git && return
+
+        local cb=$'\e[38;5;45m'
+        local cl=$'\e[1;38;5;147m'
+        local cn=$'\e[38;5;242m'
+        local cw=$'\e[38;5;253m'
+        local cg=$'\e[38;5;82m'
+        local cy=$'\e[38;5;220m'
+        local cr=$'\e[38;5;203m'
+        local R=$'\e[0m'
+        local tmpdir="/tmp/.rse-$$"
+        mkdir -p "$tmpdir"
+
+        printf "\n $cb╭─$cl repos $cb─────────────────────────────────────╮$R\n"
+
+        setopt LOCAL_OPTIONS NO_MONITOR
+        while IFS=" " read -r i repo; do
+          {
+            local rname=$(basename "$repo")
+            local sb=$(git -C "$repo" status -sb 2>/dev/null)
+            local dirty=""
+            { echo "$sb" | tail -n +2 | grep -q "^[^?]" || echo "$sb" | grep -q "^??"; } && dirty="*"
+            local rahead=$(echo "$sb" | head -1 | grep -o 'ahead [0-9]*' | grep -o '[0-9]*')
+            local rbehind=$(echo "$sb" | head -1 | grep -o 'behind [0-9]*' | grep -o '[0-9]*')
+            local flags=""
+            [[ -n "$rahead" && $rahead -gt 0 ]] && flags="$flags↑$rahead "
+            [[ -n "$rbehind" && $rbehind -gt 0 ]] && flags="$flags↓$rbehind "
+            [[ -n "$dirty" ]] && flags="$flags*"
+            flags=''${flags% }
+            local rcolor=$cg rsymbol="✓"
+            if [[ -n "$flags" ]]; then
+              [[ "$flags" == *"*"* ]] && rcolor=$cr || rcolor=$cy
+              rsymbol=$flags
+            fi
+            printf " $cb│$R $cn%2d$R  $cw%-24s$R  $rcolor%-14s$R$cb│$R\n" \
+              "$i" "$rname" "$rsymbol"
+          } > "$tmpdir/$(printf '%05d' $i)" &
+        done < "$cache"
+        wait
+        cat "$tmpdir"/* 2>/dev/null
+        rm -rf "$tmpdir"
+
+        printf " $cb╰─────────────────────────────────────────────╯$R\n"
+        printf $'   r <n>  \e[38;5;45mf\e[0m fetch  \e[38;5;45ml\e[0m pull  \e[38;5;45ms\e[0m sync\n\n'
+      }
+
+      rse-git() {
+        local cache="$HOME/.cache/rse-repos"
+        local repos=()
+
+        [[ -d "$HOME/nixos/.git" ]] && repos+=("$HOME/nixos")
+        [[ -d "$HOME/.dotfiles/.git" ]] && repos+=("$HOME/.dotfiles")
+        for d in "$HOME/repos"/*(/N); do
+          [[ -d "$d/.git" ]] && repos+=("$d")
+        done
+
+        mkdir -p "$HOME/.cache"
+        : > "$cache"
+        local i=1
+        for repo in $repos; do
+          echo "$i $repo" >> "$cache"
+          (( i++ ))
+        done
+
+        _rse_display
+      }
+
+      r() {
+        local cache="$HOME/.cache/rse-repos"
+        [[ ! -f "$cache" ]] && echo "r: run rse-git first" && return 1
+
+        if [[ "$1" == "f" && -z "$2" ]]; then
+          while IFS=" " read -r num repopath; do
+            printf "  fetching %-22s" "$(basename $repopath)..."
+            git -C "$repopath" fetch origin 2>/dev/null && echo "✓" || echo "✗"
+          done < "$cache"
+          _rse_display
+          return
+        fi
+
+        local num="$1" cmd="$2"
+        local repopath=$(awk -v n="$num" '$1==n {print $2}' "$cache")
+        [[ -z "$repopath" ]] && echo "r: no repo $num — run rse-git to refresh" && return 1
+        local reponame=$(basename "$repopath")
+
+        case "$cmd" in
+          f)
+            printf "fetching %s... " "$reponame"
+            git -C "$repopath" fetch origin 2>/dev/null && echo "✓" || echo "✗"
+            rse-git
+            ;;
+          l)
+            echo "pulling $reponame..."
+            git -C "$repopath" pull
+            rse-git
+            ;;
+          s)
+            echo "syncing $reponame..."
+            git -C "$repopath" pull || return 1
+            local porcelain=$(git -C "$repopath" status --porcelain 2>/dev/null)
+            local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+            if [[ -n "$porcelain" ]]; then
+              git -C "$repopath" add .
+              local msg=$(git -C "$repopath" diff --cached | claude -p "One-line git commit message, no quotes:" 2>/dev/null)
+              [[ -z "$msg" ]] && msg="sync: $(hostname) $(date '+%H:%M')"
+              git -C "$repopath" commit -m "$msg"
+              git -C "$repopath" push
+            elif (( syncahead > 0 )); then
+              git -C "$repopath" push
+            else
+              echo "$reponame: nothing to sync"
+            fi
+            rse-git
+            ;;
+          *)
+            echo "r: use f, l, or s"
+            ;;
+        esac
+      }
+
       # Run status checks on shell startup (only for interactive shells inside tmux)
       if [[ $- == *i* ]] && [[ -n "$TMUX" ]]; then
         clear
-        nix-status
-        dot-status
+        _shell_greeting
+        _rse_display
       fi
     '';
   };
