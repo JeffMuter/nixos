@@ -532,6 +532,26 @@
           return
         fi
 
+        if [[ "$1" == "s" && -z "$2" ]]; then
+          while IFS=" " read -r num repopath; do
+            local rname=$(basename "$repopath")
+            printf "  syncing %-23s" "$rname..."
+            local porcelain=$(git -C "$repopath" status --porcelain 2>/dev/null)
+            if [[ -n "$porcelain" ]]; then
+              git -C "$repopath" add .
+              local msg=$(git -C "$repopath" diff --cached | claude -p "One-line git commit message, no quotes:" 2>/dev/null)
+              [[ -z "$msg" ]] && msg="sync: $(hostname) $(date '+%H:%M')"
+              git -C "$repopath" commit -q -m "$msg"
+            fi
+            git -C "$repopath" pull -q 2>/dev/null || { echo "✗ (pull failed)"; continue; }
+            local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+            (( syncahead > 0 )) && git -C "$repopath" push -q 2>/dev/null
+            echo "✓"
+          done < "$cache"
+          _rse_display
+          return
+        fi
+
         local num="$1" cmd="$2"
         local repopath=$(awk -v n="$num" '$1==n {print $2}' "$cache")
         [[ -z "$repopath" ]] && echo "r: no repo $num — run rse-git to refresh" && return 1
