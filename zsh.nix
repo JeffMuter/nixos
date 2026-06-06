@@ -550,20 +550,16 @@
             ;;
           s)
             echo "syncing $reponame..."
-            git -C "$repopath" pull || return 1
             local porcelain=$(git -C "$repopath" status --porcelain 2>/dev/null)
-            local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
             if [[ -n "$porcelain" ]]; then
               git -C "$repopath" add .
               local msg=$(git -C "$repopath" diff --cached | claude -p "One-line git commit message, no quotes:" 2>/dev/null)
               [[ -z "$msg" ]] && msg="sync: $(hostname) $(date '+%H:%M')"
               git -C "$repopath" commit -m "$msg"
-              git -C "$repopath" push
-            elif (( syncahead > 0 )); then
-              git -C "$repopath" push
-            else
-              echo "$reponame: nothing to sync"
             fi
+            git -C "$repopath" pull || return 1
+            local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+            (( syncahead > 0 )) && git -C "$repopath" push
             rse-git
             ;;
           *)
