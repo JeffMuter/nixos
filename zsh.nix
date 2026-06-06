@@ -543,9 +543,10 @@
               [[ -z "$msg" ]] && msg="sync: $(hostname) $(date '+%H:%M')"
               git -C "$repopath" commit -q -m "$msg"
             fi
-            git -C "$repopath" pull -q 2>/dev/null || { echo "✗ (pull failed)"; continue; }
+            git -C "$repopath" rebase --abort 2>/dev/null; git -C "$repopath" merge --abort 2>/dev/null; true
+            git -C "$repopath" pull -q || { echo "✗ (pull failed)"; continue; }
             local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
-            (( syncahead > 0 )) && git -C "$repopath" push -q 2>/dev/null
+            (( syncahead > 0 )) && git -C "$repopath" push -q
             echo "✓"
           done < "$cache"
           _rse_display
@@ -577,6 +578,7 @@
               [[ -z "$msg" ]] && msg="sync: $(hostname) $(date '+%H:%M')"
               git -C "$repopath" commit -m "$msg"
             fi
+            git -C "$repopath" rebase --abort 2>/dev/null; git -C "$repopath" merge --abort 2>/dev/null; true
             git -C "$repopath" pull || return 1
             local syncahead=$(git -C "$repopath" rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
             (( syncahead > 0 )) && git -C "$repopath" push
