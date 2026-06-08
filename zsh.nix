@@ -423,18 +423,6 @@
         cd ~
       }
 
-      # Short aliases
-      alias np='nix-push'
-      alias nl='nix-pull'
-      alias ns='nix-sync'
-      alias nst='nix-status'
-
-      # dotfile aliases
-      alias dp='dot-push'
-      alias dl='dot-pull'
-      alias ds='dot-sync'
-      alias dst='dot-status'
-
       # tmux session management aliases
       alias tw='tmux-work'
       alias tp='tmux-project'
