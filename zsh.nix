@@ -244,23 +244,34 @@
         stow -R * 2>/dev/null
         git add .
         git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
-        git push origin master
-        echo "Dotfiles pushed"
+        if git push origin master; then
+          echo "Dotfiles pushed"
+        else
+          echo "ERROR: dotfiles push failed — run 'dst' to check status"
+          cd ~
+          return 1
+        fi
         cd ~
       }
-      
+
       dot-pull() {
         echo "Pulling dotfiles to $(hostname)..."
         cd ~/.dotfiles || return 1
-        git pull
+        if ! git pull; then
+          echo "ERROR: dotfiles pull failed — branches may have diverged, resolve manually"
+          cd ~
+          return 1
+        fi
         stow -R * --adopt 2>/dev/null
         git add . 2>/dev/null
         git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
-        git push origin master 2>/dev/null || true
+        if ! git push origin master 2>/dev/null; then
+          echo "WARNING: push after adopt failed — run 'dp' to retry"
+        fi
         echo "Dotfiles synced"
         cd ~
       }
-      
+
       dot-sync() {
         dot-pull && dot-push
       }
@@ -283,7 +294,7 @@
         
         echo "dotfiles: checking status..."
         
-        git fetch origin master 2>/dev/null || {
+        git fetch origin 2>/dev/null || {
           echo "dotfiles: could not fetch from remote"
           return 1
         }
@@ -337,8 +348,13 @@
         cd ~/nixos || return 1
         git add .
         git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
-        git push origin master
-        echo "NixOS config pushed"
+        if git push origin master; then
+          echo "NixOS config pushed"
+        else
+          echo "ERROR: nixos push failed — run 'nst' to check status"
+          cd ~
+          return 1
+        fi
         cd ~
       }
 
