@@ -53,6 +53,7 @@ in
     neovim-unwrapped
     tmux
     unstable.go
+    unstable.zig
     python3
     terraform
     azure-cli
