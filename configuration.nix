@@ -13,6 +13,9 @@ let
 
   # Import local grofer package
   grofer = pkgs.callPackage ./grofer.nix {};
+
+  # LightPanda headless browser (prebuilt binary) for agent-browser research mode
+  lightpanda = pkgs.callPackage ./lightpanda.nix {};
 in
 
 {
@@ -54,6 +57,7 @@ in
     tmux
     unstable.go
     unstable.zig
+    unstable.zls
     python3
     terraform
     azure-cli
@@ -80,6 +84,7 @@ in
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     grofer                    # system monitoring tool
+    lightpanda                # headless browser for agent-browser research skill
     nur.repos.charmbracelet.crush  # AI terminal assistant
     zk
   ];
