@@ -54,6 +54,7 @@ in
     direnv
     stow
     neovim-unwrapped
+    tree-sitter
     tmux
     unstable.go
     unstable.zig
