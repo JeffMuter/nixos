@@ -86,9 +86,15 @@
       source "$HOME/.config/secrets/env"
     fi
 
-    # Auto-start tmux (only in interactive shells, not already in tmux)
+    # Attach to the systemd-managed tmux server (started/restored by continuum
+    # via tmux.service). Right after boot the unit may still be starting, so
+    # retry briefly before falling back to creating our own session - this
+    # avoids racing tmux.service into a duplicate/split-brain session.
     if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-      tmux attach-session -t default || tmux new-session -s default
+      tmux attach-session -t default 2>/dev/null \
+        || { sleep 0.3; tmux attach-session -t default 2>/dev/null; } \
+        || { sleep 0.6; tmux attach-session -t default 2>/dev/null; } \
+        || tmux new-session -s default
     fi
 
     # Add Windows paths if not present

@@ -101,17 +101,36 @@ in
   # Allow running dynamically linked binaries (needed for some NUR packages like crush)
   programs.nix-ld.enable = true;
 
+  # tmux-continuum's systemd_enable.sh writes tmux.service via `>` before it
+  # ever runs its own `mkdir -p`, so it silently fails if this dir is missing.
+  systemd.tmpfiles.rules = [
+    "d /home/emerald/.config/systemd/user 0755 emerald users -"
+  ];
+
   programs.tmux = {
     enable = true;
+    # resurrect/continuum are wired up manually below (options set, *then*
+    # run-shell) instead of via `plugins`, because nix's `programs.tmux`
+    # module always renders `extraConfig` after the `plugins` run-shell
+    # lines - continuum reads @continuum-boot on its very first line, before
+    # extraConfig has a chance to set it, so the option is always seen as
+    # unset/off when loaded via `plugins`.
     plugins = with pkgs.tmuxPlugins; [
-      resurrect
       yank
       sensible
     ];
     extraConfig = ''
       set -g @resurrect-capture-pane-contents 'on'
       set -g @resurrect-strategy-vim 'session'
-      set -g status-right "#(~/.tmux/plugins/tmux-powerline/powerline.sh right)"
+      set -g @continuum-restore 'on'
+      set -g @continuum-save-interval '5'
+      set -g @continuum-boot 'on'
+      set -g @continuum-systemd-start-cmd 'new-session -d -s default'
+
+      run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/resurrect.tmux
+      run-shell ${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/continuum.tmux
+
+      set -ga status-right "#(~/.tmux/plugins/tmux-powerline/powerline.sh right)"
       set -g status-left-length 40
       set -g status-right-length 80
       '';
