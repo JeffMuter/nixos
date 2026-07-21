@@ -88,6 +88,7 @@ in
     lightpanda                # headless browser for agent-browser research skill
     nur.repos.charmbracelet.crush  # AI terminal assistant
     zk
+    unstable.nethack
   ];
 
   virtualisation.docker.enable = true;
