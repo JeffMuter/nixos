@@ -450,12 +450,13 @@
       alias tp='tmux-project'
 
       _shell_greeting() {
+        [[ -r "$HOME/.config/shell-theme/colors.sh" ]] && source "$HOME/.config/shell-theme/colors.sh"
         local hour=$(date +%H)
         local greeting="good morning"
         [[ $hour -ge 12 ]] && greeting="good afternoon"
         [[ $hour -ge 17 ]] && greeting="good evening"
-        local cl=$'\e[1;38;5;147m'
-        local cd=$'\e[38;5;242m'
+        local cl=$'\e[1;38;5;147m'; [[ -n "$_TH_ACCENT" ]] && cl=$_TH_ACCENT
+        local cd=$'\e[38;5;242m';   [[ -n "$_TH_MUTED" ]]  && cd=$_TH_MUTED
         local R=$'\e[0m'
         printf "\n  $cl%-26s$R  $cd%s$R\n" "$greeting, emerald" "$(date '+%a %b %d  %H:%M')"
       }
@@ -464,13 +465,14 @@
         local cache="$HOME/.cache/rse-repos"
         [[ ! -f "$cache" ]] && rse-git && return
 
-        local cb=$'\e[38;5;45m'
-        local cl=$'\e[1;38;5;147m'
-        local cn=$'\e[38;5;242m'
-        local cw=$'\e[38;5;253m'
-        local cg=$'\e[38;5;82m'
-        local cy=$'\e[38;5;220m'
-        local cr=$'\e[38;5;203m'
+        [[ -r "$HOME/.config/shell-theme/colors.sh" ]] && source "$HOME/.config/shell-theme/colors.sh"
+        local cb=$'\e[38;5;45m';    [[ -n "$_TH_BORDER" ]] && cb=$_TH_BORDER
+        local cl=$'\e[1;38;5;147m'; [[ -n "$_TH_ACCENT" ]] && cl=$_TH_ACCENT
+        local cn=$'\e[38;5;242m';   [[ -n "$_TH_MUTED" ]]  && cn=$_TH_MUTED
+        local cw=$'\e[38;5;253m';   [[ -n "$_TH_TEXT" ]]   && cw=$_TH_TEXT
+        local cg=$'\e[38;5;82m';    [[ -n "$_TH_OK" ]]     && cg=$_TH_OK
+        local cy=$'\e[38;5;220m';   [[ -n "$_TH_WARN" ]]   && cy=$_TH_WARN
+        local cr=$'\e[38;5;203m';   [[ -n "$_TH_DIRTY" ]]  && cr=$_TH_DIRTY
         local R=$'\e[0m'
         local tmpdir="/tmp/.rse-$$"
         mkdir -p "$tmpdir"
@@ -505,7 +507,7 @@
         rm -rf "$tmpdir"
 
         printf " $cb╰─────────────────────────────────────────────╯$R\n"
-        printf $'   r <n>  \e[38;5;45mf\e[0m fetch  \e[38;5;45ml\e[0m pull  \e[38;5;45ms\e[0m sync\n\n'
+        printf "   r <n>  $cb%s$R fetch  $cb%s$R pull  $cb%s$R sync\n\n" f l s
       }
 
       rse-git() {
