@@ -65,7 +65,6 @@
       win32yank = "/mnt/c/Users/jeffmuter/AppData/Local/Microsoft/WinGet/Packages/equalsraf.win32yank_Microsoft.Winget.Source_8wekyb3d8bbwe/win32yank.exe";
       zk-pri = "zk-prioritize";
       tmux-snap = "bash ~/.bashScripts/tmux-snap";
-      zk-brief = "bash ~/.bashScripts/zk-brief";
     };
 
     shellInit = ''
@@ -102,8 +101,9 @@
       export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows"
     fi
 
-    # Add bashScripts and npm-global bins to PATH
+    # Add bashScripts, local bins (zk-daily etc.), and npm-global bins to PATH
     export PATH="$HOME/.bashScripts:$PATH"
+    export PATH="$HOME/.local/bin:$PATH"
     export PATH="$HOME/.npm-global/bin:$PATH"
 
     HISTFILE=~/.zsh_history
