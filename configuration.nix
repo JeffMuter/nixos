@@ -87,6 +87,7 @@ in
     grofer                    # system monitoring tool
     lightpanda                # headless browser for agent-browser research skill
     nur.repos.charmbracelet.crush  # AI terminal assistant
+    claude-code                # Anthropic's agentic CLI (nixpkgs, JS build)
     zk
     unstable.nethack
   ];
