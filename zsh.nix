@@ -67,10 +67,6 @@
       tmux-snap = "bash ~/.bashScripts/tmux-snap";
     };
 
-    shellInit = ''
-      claude() { env -u ANTHROPIC_API_KEY /home/emerald/.npm-global/bin/claude "$@"; }
-    '';
-
     histSize = 10000;
     histFile = "$HOME/.zsh_history";
     enableCompletion = true;
