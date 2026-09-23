@@ -101,7 +101,6 @@ in
     pavucontrol
     alsa-utils
     ghostty
-    chromium
 
     # i3 # window manager with x11
     # flameshot # x11 display server's screenshot tool
