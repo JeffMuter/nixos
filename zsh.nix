@@ -613,5 +613,10 @@
   environment.sessionVariables = {
     GOPATH = [ "$HOME/go" ];
     ZK_NOTEBOOK_DIR = "$HOME/repos/notes";
+    # agent-browser's bundled Chrome cannot load system libs on NixOS
+    # (libglib-2.0.so.0 etc). Point it at the system Chromium so every
+    # agent_browser call works without --executable-path or any per-session
+    # workaround. Inherited by pi when launched from a shell/tmux.
+    AGENT_BROWSER_EXECUTABLE_PATH = "/run/current-system/sw/bin/chromium";
   };
 }
