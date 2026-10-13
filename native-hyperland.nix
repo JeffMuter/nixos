@@ -45,13 +45,6 @@ in
     variant = "";
   };
 
-  # services.xserver = {
-  #       enable = true;
-  #       windowManager.i3 = {
-  #         enable = true;
-  #       };
-  # };
-
   # sets up hyperland & wayland as display server & window manager
   programs.hyprland = {
     enable = true;
@@ -69,8 +62,6 @@ in
   # Enable dconf for GTK applications
   programs.dconf.enable = true;  
 
-  # Fix the deprecated displayManager option
-  # services.displayManager.defaultSession = "none+i3";
   
   xdg.portal = {
     enable = true;
@@ -92,8 +83,6 @@ in
   };
   # Enable automatic login for the user.
   services.getty.autologinUser = "emerald";
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -101,8 +90,6 @@ in
     alsa-utils
     ghostty
 
-    # i3 # window manager with x11
-    # flameshot # x11 display server's screenshot tool
     # for wayland/hyprland specifically
     wofi
     waybar
@@ -117,8 +104,6 @@ in
     # end of wayland/hyprland
     python3
     python3Packages.pip
-    firefox
-    obsidian
     appimage-run
     fuse
     brightnessctl # assumed correct over `light`; remove if wrong
@@ -130,7 +115,6 @@ in
   # Environment variables for Wayland compatibility
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";      # Electron apps use Wayland
-    MOZ_ENABLE_WAYLAND = "1";  # Firefox uses Wayland
     XDG_CURRENT_DESKTOP = "Hyprland";
     XCURSOR_THEME = "retrosmart-xcursor-white";
     XCURSOR_SIZE = "33";

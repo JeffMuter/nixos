@@ -14,7 +14,6 @@ in
 {
   # sets the version/channel of Nix i want to use
   system.stateVersion = "24.11";
-  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.11";
   time.timeZone = "America/New_York";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -127,7 +126,6 @@ in
       run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/resurrect.tmux
       run-shell ${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/continuum.tmux
 
-      set -ga status-right "#(~/.tmux/plugins/tmux-powerline/powerline.sh right)"
       set -g status-left-length 40
       set -g status-right-length 80
       '';
