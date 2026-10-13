@@ -99,7 +99,11 @@ in
 
   # tmux-continuum's systemd_enable.sh writes tmux.service via `>` before it
   # ever runs its own `mkdir -p`, so it silently fails if this dir is missing.
+  # Every level is listed: tmpfiles creates missing parents as root, and a
+  # root-owned ~/.config on a fresh machine makes stow (bootstrap.sh) fail.
   systemd.tmpfiles.rules = [
+    "d /home/emerald/.config 0755 emerald users -"
+    "d /home/emerald/.config/systemd 0755 emerald users -"
     "d /home/emerald/.config/systemd/user 0755 emerald users -"
   ];
 
