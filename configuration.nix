@@ -53,6 +53,7 @@ in
     fzf
     direnv
     stow
+    age                       # secrets-backup / secrets-restore (dotfiles)
     neovim-unwrapped
     tree-sitter
     tmux
