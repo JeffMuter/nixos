@@ -14,16 +14,20 @@
     let
       # hostName must match the attribute name: plain `nixos-rebuild switch`
       # picks the flake output by the machine's hostname.
-      mkHost = hostName: isWSL: extraModules: nixpkgs.lib.nixosSystem {
+      mkHost = hostName: nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit inputs isWSL; };
-        modules = [ ./configuration.nix { networking.hostName = hostName; } ] ++ extraModules;
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./modules/common.nix
+          ./hosts/${hostName}
+          { networking.hostName = hostName; }
+        ];
       };
     in
     {
       nixosConfigurations = {
-        emerald-work = mkHost "emerald-work" true [ inputs.nixos-wsl.nixosModules.default ];
-        emerald = mkHost "emerald" false [ ];
+        emerald-work = mkHost "emerald-work"; # WSL
+        emerald = mkHost "emerald"; # native desktop
       };
     };
 }

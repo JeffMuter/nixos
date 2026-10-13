@@ -1,5 +1,11 @@
-{ pkgs, config, ... }:
+# Windows / WSL machine.
+{ inputs, ... }:
 {
+  imports = [ inputs.nixos-wsl.nixosModules.default ];
+
+  # Release this machine was first installed with - never bump it.
+  system.stateVersion = "24.11";
+
   wsl.enable = true;
   wsl.defaultUser = "emerald";
 

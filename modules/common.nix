@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, isWSL, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   # Unstable nixpkgs, pinned in flake.lock
@@ -8,23 +8,15 @@ let
   };
 
   # Import local grofer package
-  grofer = pkgs.callPackage ./grofer.nix {};
+  grofer = pkgs.callPackage ../pkgs/grofer.nix {};
 in
 
 {
-  # sets the version/channel of Nix i want to use
-  system.stateVersion = "24.11";
   time.timeZone = "America/New_York";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # isWSL comes from the host entry in flake.nix (the nixos-wsl module is added there)
-  imports = if isWSL
-    then  [ ./wsl.nix ./zsh.nix ]
-    else  [ 
-      #      ./native.nix 
-      ./hardware-configuration.nix 
-      ./zsh.nix 
-      ./native-hyperland.nix ];
+  # Shared by every host. Per-machine bits live in hosts/<hostname>/.
+  imports = [ ./zsh.nix ];
 
   users.users.emerald = {
     isNormalUser = true;

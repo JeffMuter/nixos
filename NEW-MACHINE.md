@@ -30,14 +30,17 @@ You need: **your GitHub login** and **your secrets passphrase**. Nothing else.
    Open a new terminal.
 
 A *second* machine running alongside this one (not a replacement) should get its
-own name: copy the `emerald-work` line in `flake.nix` to `emerald-work2` and pass
-that name as the last argument to `install.sh` in step 2.
+own name: `cp -r hosts/emerald-work hosts/emerald-work2`, add
+`emerald-work2 = mkHost "emerald-work2";` to `flake.nix`, push, and pass that
+name as the last argument to `install.sh` in step 2.
 
 ## Native desktop — host `emerald`
 
 1. Install NixOS from the ISO, creating user **`emerald`**.
-2. Commit this machine's hardware config to the repo (from any machine):
-   `nixos-generate-config --show-hardware-config` → `hardware-configuration.nix`.
+2. Put this machine's hardware config in the repo and push it:
+   `nixos-generate-config --show-hardware-config` →
+   `hosts/emerald/hardware-configuration.nix` (check the grub device in
+   `hosts/emerald/default.nix` too).
 3. `sudo nixos-rebuild switch --flake github:JeffMuter/nixos#emerald`, reboot.
 4. Run step 3 of the WSL list above (the `install.sh` line, as `emerald`).
 
