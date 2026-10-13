@@ -39,6 +39,7 @@ in
     direnv
     stow
     gh                        # one-time GitHub login on a new machine (install.sh)
+    nvd                       # ~/nixos/check: package diff before switching
     age                       # secrets-backup / secrets-restore (dotfiles)
     neovim-unwrapped
     tree-sitter

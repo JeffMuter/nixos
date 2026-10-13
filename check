@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Pre-switch check for this repo. Run before every switch:
+#
+#   ./check            evaluate + build every host, show what would change here
+#   ./check --switch   same, then ask y/N and switch this machine
+#   ./check --fast     only build this machine (skip the other hosts)
+#
+# 1. nix flake check (every host evaluates)
+# 2. build each host's system -> ./result-<host>   (WSL builds the desktop too)
+# 3. nvd diff: running system vs. this machine's new build
+
+set -euo pipefail
+cd "$(dirname "$(readlink -f "$0")")"
+
+switch=0 fast=0
+for arg in "$@"; do
+  case $arg in
+    --switch) switch=1 ;;
+    --fast) fast=1 ;;
+    *) echo "usage: check [--switch] [--fast]" >&2; exit 2 ;;
+  esac
+done
+
+# /etc/hostname is the configured name, even before a WSL restart applies it
+this=$(cat /etc/hostname 2>/dev/null || hostname)
+mapfile -t hosts < <(nix eval --json .#nixosConfigurations --apply builtins.attrNames | jq -r '.[]')
+[[ " ${hosts[*]} " == *" $this "* ]] || { echo "no host '$this' in flake.nix (have: ${hosts[*]})" >&2; exit 1; }
+
+untracked=$(git ls-files --others --exclude-standard)
+if [[ -n "$untracked" ]]; then
+  echo "WARNING: untracked files are invisible to the flake - git add them if they matter:"
+  printf '  %s\n' "$untracked"
+fi
+
+echo "==> nix flake check"
+nix flake check --no-build
+
+(( fast )) && hosts=("$this")
+for h in "${hosts[@]}"; do
+  echo "==> build $h"
+  nix build -o "result-$h" ".#nixosConfigurations.$h.config.system.build.toplevel"
+done
+
+echo "==> what changes on $this"
+nvd diff /run/current-system "result-$this"
+
+(( switch )) || exit 0
+read -rp "Switch $this to this build? [y/N] " answer
+[[ "$answer" == [yY] ]] || { echo "not switched"; exit 0; }
+sudo nixos-rebuild switch --flake ".#$this"
