@@ -2,40 +2,26 @@ this is my configuration for nixos.
 
 NEW MACHINE?
 
-    get nixos either on wsl, or native.
-    
-    name the user 'emerald', this is important.
-    
-    install git
-    
-    cd ~
-    
-    setup ssh authentication for github
-    
-    git clone nixos repo via ssh
-
-    git clone .dotfiles repo via ssh
-
-    sudo nixos-rebuild switch
+    see NEW-MACHINE.md - one command (run twice), one GitHub login, one passphrase.
 
 
 COMMANDS:
-    sudo nixos-rebuild switch : rebuild the OS, if we fail, revert. If success, switch to updated env.
+    sudo nixos-rebuild switch : rebuild the OS for this machine's hostname (flake.nix), pinned by flake.lock.
 
 
 HOW IT WORKS:
 
-currently configured to run on 2 environments:
+flake.nix defines one entry per machine (named after its hostname):
 
-    1. NixOS (natively)
+    1. emerald      - NixOS natively (desktop)
 
-    2. Windows(in WSL)
+    2. emerald-work - Windows (in WSL)
 
 configuration.nix :
     this is a configuration file for nix, and tells nix what packages and software to use across ALL environments.
 
-native.nix
-    this is an extension of the configuration.nix file, but only runs when on a NixOS linux environment natively.
+native-hyperland.nix
+    this is an extension of the configuration.nix file, used by the native host.
 
 wsl.nix
     same as before. This extends WSL, and has configuration details that only apply in a WSL environment.
@@ -49,4 +35,4 @@ zsh.nix
     & dotfiles repos in the ~ directory, as keeping machines in sync is important.
 
 hardware-configuration.nix
-    generated hardware file for our currently only natively-running devices, my home PC, and personal laptop
+    generated hardware file for our currently only natively-running devices, my home PC
