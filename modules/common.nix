@@ -13,8 +13,6 @@ let
     config = config.nixpkgs.config;
   };
 
-  # Import local grofer package
-  grofer = pkgs.callPackage ../pkgs/grofer.nix { };
 in
 
 {
@@ -46,11 +44,8 @@ in
 
   # install and enable these packages
   environment.systemPackages = with pkgs; [
-    clang # for C
     pay-respects
-    clang-tools # tooling
     gcc
-    gdb # gnu debugger for C
     fzf
     stow
     gh # one-time GitHub login on a new machine (install.sh)
@@ -63,34 +58,21 @@ in
     tree-sitter
     tmux
     unstable.go
-    unstable.zig
-    unstable.zls
     python3
-    terraform
-    azure-cli
     unstable.nodejs
     unstable.pi-coding-agent
     unstable.agent-browser
     pkgs.stylua
     unzip
     xclip
-    xsel
     jq
-    yt-dlp
-    tmux-mem-cpu-load
-    awscli
-    docker
-    docker-compose
+    yt-dlp # videoclear - until it has its own dev shell
     docker-credential-helpers
     gofumpt
-    firebase-tools # firebase server tooling
-    postgresql
+    firebase-tools # jeffmuter-portfolio deploys - until it has its own dev shell
     sqlite
-    tailwindcss
     ripgrep
     cargo # the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
-    git-filter-repo
-    grofer # system monitoring tool
     chromium # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
     zk
     unstable.nethack
