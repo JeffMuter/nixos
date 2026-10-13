@@ -1,0 +1,49 @@
+# Weekly: bump flake.lock, build both hosts, open a PR whose description is the
+# package diff for the WSL host. Nothing changes on a machine until you merge it
+# and switch - updates are a reviewed event, not drift.
+name: update
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Mondays
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Build current (for the diff)
+        run: nix build -o old .#nixosConfigurations.emerald-work.config.system.build.toplevel
+      - name: nix flake update
+        run: nix flake update
+      - name: Build updated hosts
+        run: |
+          nix build -o new .#nixosConfigurations.emerald-work.config.system.build.toplevel
+          nix build --no-link .#nixosConfigurations.emerald.config.system.build.toplevel
+      - name: Package diff
+        run: |
+          {
+            echo "Weekly \`nix flake update\`. Both hosts build."
+            echo
+            echo "To apply: merge, then \`nix-pull && nixos-switch\` on each machine."
+            echo
+            echo '```'
+            nix run nixpkgs#nvd -- diff ./old ./new
+            echo '```'
+          } > pr-body.md
+          rm old new
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: flake-update
+          commit-message: "flake.lock: weekly update"
+          title: "flake.lock: weekly update"
+          body-path: pr-body.md
+          add-paths: flake.lock
+          delete-branch: true
