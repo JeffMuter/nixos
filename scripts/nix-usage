@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""nix-usage: when was each system package last used?
+
+For every package in this host's environment.systemPackages it lists
+  typed   - last time one of its binaries started a command in ~/.zsh_history
+  agent   - last time Claude Code or pi ran one (transcripts in ~/.claude, ~/.pi)
+  refs    - files in ~/.dotfiles and ~/nixos that mention a binary (scripts,
+            nvim config, skills...) - "never typed" + refs > 0 usually means
+            something else uses it
+Blind spots: commands run by nvim, cron/systemd, or before history began.
+
+usage: scripts/nix-usage [--all]   (--all also lists NixOS base packages)
+"""
+import json, os, re, subprocess, sys, time
+from pathlib import Path
+
+HOME = Path.home()
+REPO = Path(__file__).resolve().parent.parent
+PREFIXES = {"sudo", "env", "time", "exec", "command", "nohup", "watch", "xargs", "nix-shell", "builtin"}
+SEGMENT = re.compile(r"\|\|?|&&|;|\$\(|`")
+COMMAND_JSON = re.compile(r'"command"\s*:\s*"((?:[^"\\]|\\.)*)"')
+
+
+def host():
+    try:
+        return Path("/etc/hostname").read_text().strip()
+    except OSError:
+        return os.uname().nodename
+
+
+def packages():
+    expr = 'map (p: { name = p.pname or p.name or "?"; out = p.outPath or ""; })'
+    out = subprocess.run(
+        ["nix", "eval", "--json", f"{REPO}#nixosConfigurations.{host()}.config.environment.systemPackages", "--apply", expr],
+        check=True, capture_output=True, text=True).stdout
+    pkgs = {}
+    for p in json.loads(out):
+        bindir = Path(p["out"]) / "bin"
+        bins = sorted(b.name for b in bindir.iterdir()) if bindir.is_dir() else []
+        pkgs.setdefault(p["name"], set()).update(bins)
+    return pkgs
+
+
+def command_words(cmdline):
+    """first word of each pipeline segment, skipping sudo/env/... and VAR=x"""
+    for seg in SEGMENT.split(cmdline):
+        for tok in seg.split():
+            if "=" in tok and not tok.startswith(("=", "-")):
+                continue
+            if tok in PREFIXES or tok.startswith("-"):
+                continue
+            yield os.path.basename(tok)
+            break
+
+
+def scan_history(last):
+    path = HOME / ".zsh_history"
+    if not path.exists():
+        return
+    for line in path.read_bytes().decode("utf-8", "replace").splitlines():
+        m = re.match(r": (\d+):\d+;(.*)", line)
+        if not m:
+            continue
+        ts = int(m.group(1))
+        for w in command_words(m.group(2)):
+            last["typed"][w] = max(last["typed"].get(w, 0), ts)
+
+
+def scan_agents(last):
+    for root in (HOME / ".claude" / "projects", HOME / ".pi" / "agent" / "sessions"):
+        if not root.is_dir():
+            continue
+        for f in root.rglob("*.jsonl"):
+            ts = int(f.stat().st_mtime)
+            try:
+                text = f.read_text("utf-8", "replace")
+            except OSError:
+                continue
+            for m in COMMAND_JSON.finditer(text):
+                try:
+                    cmd = json.loads(f'"{m.group(1)}"')
+                except json.JSONDecodeError:
+                    continue
+                for w in command_words(cmd):
+                    last["agent"][w] = max(last["agent"].get(w, 0), ts)
+
+
+def config_refs(all_bins):
+    refs = {}
+    roots = [str(HOME / ".dotfiles"), str(REPO)]
+    for b in all_bins:
+        if len(b) < 3:
+            continue
+        r = subprocess.run(["rg", "-l", "-w", "-F", "--no-messages", "-g", "!*.age", "-g", "!.git",
+                            "-g", "!node_modules", "-g", "!flake.lock", b, *roots],
+                           capture_output=True, text=True)
+        refs[b] = len(r.stdout.splitlines())
+    return refs
+
+
+def ago(ts):
+    if not ts:
+        return "never"
+    days = int((time.time() - ts) // 86400)
+    return "today" if days == 0 else f"{days}d ago"
+
+
+def main():
+    show_all = "--all" in sys.argv
+    pkgs = packages()
+    last = {"typed": {}, "agent": {}}
+    scan_history(last)
+    scan_agents(last)
+    refs = config_refs({b for bins in pkgs.values() for b in bins})
+
+    # by default only packages this repo declares (not NixOS's base system)
+    declared = " ".join(f.read_text() for f in REPO.rglob("*.nix"))
+    rows = []
+    for name, bins in pkgs.items():
+        if not bins:
+            continue
+        if not show_all and not re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", declared):
+            continue
+        typed = max((last["typed"].get(b, 0) for b in bins), default=0)
+        agent = max((last["agent"].get(b, 0) for b in bins), default=0)
+        nref = sum(refs.get(b, 0) for b in bins)
+        rows.append((max(typed, agent), name, typed, agent, nref, len(bins)))
+    rows.sort()
+    print(f"{'package':28} {'typed':>10} {'agent':>10} {'refs':>5}  bins")
+    for _, name, typed, agent, nref, nbins in rows:
+        print(f"{name[:28]:28} {ago(typed):>10} {ago(agent):>10} {nref:>5}  {nbins}")
+    first = min((int(m.group(1)) for m in re.finditer(r"^: (\d+):", (HOME / ".zsh_history").read_text("utf-8", "replace"), re.M)), default=0)
+    print(f"\nzsh history starts {ago(first)}; least recently used first.")
+
+
+if __name__ == "__main__":
+    main()
