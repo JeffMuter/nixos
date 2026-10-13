@@ -12,9 +12,6 @@ let
 
   # Import local grofer package
   grofer = pkgs.callPackage ./grofer.nix {};
-
-  # LightPanda headless browser (prebuilt binary) for agent-browser research mode
-  lightpanda = pkgs.callPackage ./lightpanda.nix {};
 in
 
 {
@@ -87,7 +84,6 @@ in
     cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
     grofer                    # system monitoring tool
-    lightpanda                # headless browser for agent-browser research skill
     chromium                  # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
     nur.repos.charmbracelet.crush  # AI terminal assistant
     claude-code                # Anthropic's agentic CLI (nixpkgs, JS build)
