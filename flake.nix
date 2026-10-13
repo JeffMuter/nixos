@@ -8,11 +8,6 @@
       url = "github:nix-community/NixOS-WSL/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Imported as plain nix (like the old fetchTarball), not as a flake.
-    nur = {
-      url = "github:nix-community/NUR";
-      flake = false;
-    };
   };
 
   outputs = { nixpkgs, ... }@inputs:

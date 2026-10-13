@@ -7,9 +7,6 @@ let
     config = config.nixpkgs.config;
   };
 
-  # Nix User Repository (for charmbracelet packages), pinned in flake.lock
-  nur = import inputs.nur { inherit pkgs; nurpkgs = pkgs; };
-
   # Import local grofer package
   grofer = pkgs.callPackage ./grofer.nix {};
 in
@@ -85,7 +82,6 @@ in
     git-filter-repo
     grofer                    # system monitoring tool
     chromium                  # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
-    nur.repos.charmbracelet.crush  # AI terminal assistant
     claude-code                # Anthropic's agentic CLI (nixpkgs, JS build)
     zk
     unstable.nethack
@@ -99,7 +95,7 @@ in
     scientifica
   ];
 
-  # Allow running dynamically linked binaries (needed for some NUR packages like crush)
+  # Allow running dynamically linked binaries (prebuilt tools, mason LSPs)
   programs.nix-ld.enable = true;
 
   # tmux-continuum's systemd_enable.sh writes tmux.service via `>` before it
