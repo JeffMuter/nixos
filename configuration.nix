@@ -1,15 +1,14 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, isWSL, ... }:
 
 let
-  # Automatically import unstable channel
-  unstable = import (builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz";
-  }) { config = config.nixpkgs.config; };
+  # Unstable nixpkgs, pinned in flake.lock
+  unstable = import inputs.nixpkgs-unstable {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config = config.nixpkgs.config;
+  };
 
-  # Nix User Repository (for charmbracelet packages)
-  nur = import (builtins.fetchTarball {
-    url = "https://github.com/nix-community/NUR/archive/main.tar.gz";
-  }) { inherit pkgs; };
+  # Nix User Repository (for charmbracelet packages), pinned in flake.lock
+  nur = import inputs.nur { inherit pkgs; nurpkgs = pkgs; };
 
   # Import local grofer package
   grofer = pkgs.callPackage ./grofer.nix {};
@@ -25,8 +24,9 @@ in
   time.timeZone = "America/New_York";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  imports = if builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop"
-    then  [ ./wsl.nix ./zsh.nix <nixos-wsl/modules> ]
+  # isWSL comes from the host entry in flake.nix (the nixos-wsl module is added there)
+  imports = if isWSL
+    then  [ ./wsl.nix ./zsh.nix ]
     else  [ 
       #      ./native.nix 
       ./hardware-configuration.nix 
