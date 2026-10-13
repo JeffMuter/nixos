@@ -10,19 +10,22 @@
     };
   };
 
-  outputs = { nixpkgs, ... }@inputs:
+  outputs =
+    { nixpkgs, ... }@inputs:
     let
       # hostName must match the attribute name: plain `nixos-rebuild switch`
       # picks the flake output by the machine's hostname.
-      mkHost = hostName: nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          ./modules/common.nix
-          ./hosts/${hostName}
-          { networking.hostName = hostName; }
-        ];
-      };
+      mkHost =
+        hostName:
+        nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./modules/common.nix
+            ./hosts/${hostName}
+            { networking.hostName = hostName; }
+          ];
+        };
     in
     {
       nixosConfigurations = {

@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   # Unstable nixpkgs, pinned in flake.lock
@@ -8,25 +14,35 @@ let
   };
 
   # Import local grofer package
-  grofer = pkgs.callPackage ../pkgs/grofer.nix {};
+  grofer = pkgs.callPackage ../pkgs/grofer.nix { };
 in
 
 {
   time.timeZone = "America/New_York";
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Shared by every host. Per-machine bits live in hosts/<hostname>/.
   imports = [ ./zsh.nix ];
 
   users.users.emerald = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "audio" "input" "users" "docker" ];
+    extraGroups = [
+      "wheel"
+      "video"
+      "audio"
+      "input"
+      "users"
+      "docker"
+    ];
     shell = pkgs.zsh;
-    uid = 1000;  # Explicitly set to match WSL expectation
+    uid = 1000; # Explicitly set to match WSL expectation
     home = "/home/emerald";
   };
 
-  nixpkgs.config.allowUnfree = true; 
+  nixpkgs.config.allowUnfree = true;
 
   # install and enable these packages
   environment.systemPackages = with pkgs; [
@@ -38,9 +54,9 @@ in
     fzf
     direnv
     stow
-    gh                        # one-time GitHub login on a new machine (install.sh)
-    nvd                       # ~/nixos/check: package diff before switching
-    age                       # secrets-backup / secrets-restore (dotfiles)
+    gh # one-time GitHub login on a new machine (install.sh)
+    nvd # ~/nixos/check: package diff before switching
+    age # secrets-backup / secrets-restore (dotfiles)
     neovim-unwrapped
     tree-sitter
     tmux
@@ -65,15 +81,15 @@ in
     docker-compose
     docker-credential-helpers
     gofumpt
-    firebase-tools            # firebase server tooling
+    firebase-tools # firebase server tooling
     postgresql
     sqlite
     tailwindcss
     ripgrep
-    cargo #the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
+    cargo # the rust package manager, htmx-lsp depends on this because its built by the primeagen... smh
     git-filter-repo
-    grofer                    # system monitoring tool
-    chromium                  # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
+    grofer # system monitoring tool
+    chromium # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
     zk
     unstable.nethack
   ];
@@ -120,14 +136,16 @@ in
 
       set -g status-left-length 40
       set -g status-right-length 80
-      '';
+    '';
   };
 
   # Identity, aliases and merge tool live in ~/.dotfiles/git/.gitconfig.
   # safe.directory lets root (nixos-rebuild) read this user-owned repo.
   programs.git = {
     enable = true;
-    config.safe.directory = [ "/etc/nixos" "/home/emerald/nixos" ];
+    config.safe.directory = [
+      "/etc/nixos"
+      "/home/emerald/nixos"
+    ];
   };
 }
-

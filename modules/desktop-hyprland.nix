@@ -1,10 +1,10 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
-{pkgs, config, ... }:
+{ pkgs, config, ... }:
 
 let
-  retrosmart-cursors = pkgs.callPackage ../pkgs/retrosmart-cursors.nix {};
+  retrosmart-cursors = pkgs.callPackage ../pkgs/retrosmart-cursors.nix { };
 in
 {
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -40,7 +40,7 @@ in
     enable = true;
     xwayland.enable = true;
   };
-  
+
   services.displayManager = {
     defaultSession = "hyprland";
     sddm = {
@@ -50,26 +50,30 @@ in
   };
 
   # Enable dconf for GTK applications
-  programs.dconf.enable = true;  
+  programs.dconf.enable = true;
 
-  
   xdg.portal = {
     enable = true;
-    extraPortals = [ 
-      pkgs.xdg-desktop-portal-hyprland  # Hyprland-specific portal
-      pkgs.xdg-desktop-portal-gtk       # GTK portal for fallback
+    extraPortals = [
+      pkgs.xdg-desktop-portal-hyprland # Hyprland-specific portal
+      pkgs.xdg-desktop-portal-gtk # GTK portal for fallback
     ];
     # Fix the portal configuration warning
     config.common.default = "*";
   };
-  
-  services.flatpak.enable = true; 
+
+  services.flatpak.enable = true;
   # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.emerald = {
     isNormalUser = true;
     description = "emerald";
-    extraGroups = [ "networkmanager" "wheel" "dialout" "plugdev" ];
-    packages = with pkgs; [];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "dialout"
+      "plugdev"
+    ];
+    packages = with pkgs; [ ];
   };
   # Enable automatic login for the user.
   services.getty.autologinUser = "emerald";
@@ -104,7 +108,7 @@ in
 
   # Environment variables for Wayland compatibility
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";      # Electron apps use Wayland
+    NIXOS_OZONE_WL = "1"; # Electron apps use Wayland
     XDG_CURRENT_DESKTOP = "Hyprland";
     XCURSOR_THEME = "retrosmart-xcursor-white";
     XCURSOR_SIZE = "33";
