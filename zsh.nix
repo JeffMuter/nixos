@@ -239,13 +239,54 @@
       fi
     }
       
+      # Stow packages come from ~/.dotfiles/packages ("name [native|wsl]" per line),
+      # never from `*` - non-package dirs/files there make stow abort everything.
+      _dot_packages() {
+        local manifest="$HOME/.dotfiles/packages" env=native name tag
+        [[ -e /proc/sys/fs/binfmt_misc/WSLInterop ]] && env=wsl
+        [[ -r "$manifest" ]] || return 0
+        while read -r name tag; do
+          [[ -z "$name" || "$name" == \#* ]] && continue
+          [[ -n "$tag" && "$tag" != "$env" ]] && continue
+          print -r -- "$name"
+        done < "$manifest"
+      }
+
+      _dot_stow() {
+        local pkgs=(''${(f)"$(_dot_packages)"})
+        if (( ''${#pkgs} == 0 )); then
+          echo "dotfiles: no ~/.dotfiles/packages manifest - skipping stow"
+          return 0
+        fi
+        stow -d "$HOME/.dotfiles" -t "$HOME" -R "''${pkgs[@]}" \
+          || { echo "ERROR: stow aborted, nothing was linked - fix the conflicts above"; return 1; }
+      }
+
+      # Show what would be committed and ask first, so stray machine state
+      # (credentials, runtime files) can't slip into a sync commit.
+      _confirm_commit() {
+        if [[ -z "$(git status --porcelain)" ]]; then
+          echo "No changes to commit"
+          return 0
+        fi
+        git status --short
+        if read -q "?Commit and push these? [y/N] "; then
+          echo
+          git add .
+          git commit -m "sync: $(hostname) $(date '+%H:%M')"
+        else
+          echo
+          echo "Aborted - nothing committed"
+          return 1
+        fi
+      }
+
       # Dotfiles sync functions
       dot-push() {
         echo "Syncing dotfiles from $(hostname)..."
         cd ~/.dotfiles || return 1
-        stow -R * 2>/dev/null
-        git add .
-        git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
+        _dot_stow
+        _confirm_commit || { cd ~; return 1; }
         if git push origin master; then
           echo "Dotfiles pushed"
         else
@@ -264,12 +305,7 @@
           cd ~
           return 1
         fi
-        stow -R * --adopt 2>/dev/null
-        git add . 2>/dev/null
-        git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
-        if ! git push origin master 2>/dev/null; then
-          echo "WARNING: push after adopt failed — run 'dp' to retry"
-        fi
+        _dot_stow
         echo "Dotfiles synced"
         cd ~
       }
@@ -348,8 +384,7 @@
       nix-push() {
         echo "Syncing NixOS config from $(hostname)..."
         cd ~/nixos || return 1
-        git add .
-        git commit -m "sync: $(hostname) $(date '+%H:%M')" 2>/dev/null || echo "No changes to commit"
+        _confirm_commit || { cd ~; return 1; }
         if git push origin master; then
           echo "NixOS config pushed"
         else
@@ -363,10 +398,11 @@
       nix-pull() {
         echo "Pulling NixOS config to $(hostname)..."
         cd ~/nixos || return 1
-        git pull
-        git add . 2>/dev/null
-        git commit -m "adopt: $(hostname) $(date '+%H:%M')" 2>/dev/null || true
-        git push origin master 2>/dev/null || true
+        if ! git pull; then
+          echo "ERROR: nixos pull failed - branches may have diverged, resolve manually"
+          cd ~
+          return 1
+        fi
         echo "NixOS config synced"
         cd ~
       }
