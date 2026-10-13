@@ -42,7 +42,12 @@ for h in "${hosts[@]}"; do
 done
 
 echo "==> what changes on $this"
-nvd diff /run/current-system "result-$this"
+# nvd comes with the system; fall back to a one-off copy (first switch after install)
+if command -v nvd >/dev/null; then
+  nvd diff /run/current-system "result-$this"
+else
+  nix run "nixpkgs#nvd" -- diff /run/current-system "result-$this"
+fi
 
 (( switch )) || exit 0
 read -rp "Switch $this to this build? [y/N] " answer
