@@ -239,27 +239,35 @@
       fi
     }
       
-      # Stow packages come from ~/.dotfiles/packages ("name [native|wsl]" per line),
-      # never from `*` - non-package dirs/files there make stow abort everything.
+      # Stow packages come from ~/.dotfiles/packages ("name [native|wsl] [nofold]"
+      # per line), never from `*` - non-package dirs/files make stow abort everything.
+      # Prints "name" or "name nofold" for each package that applies to this host.
       _dot_packages() {
-        local manifest="$HOME/.dotfiles/packages" env=native name tag
+        local manifest="$HOME/.dotfiles/packages" env=native name rest
         [[ -e /proc/sys/fs/binfmt_misc/WSLInterop ]] && env=wsl
         [[ -r "$manifest" ]] || return 0
-        while read -r name tag; do
+        while read -r name rest; do
           [[ -z "$name" || "$name" == \#* ]] && continue
-          [[ -n "$tag" && "$tag" != "$env" ]] && continue
-          print -r -- "$name"
+          local words=(''${=rest})
+          (( ''${words[(I)native]} )) && [[ $env != native ]] && continue
+          (( ''${words[(I)wsl]} )) && [[ $env != wsl ]] && continue
+          if (( ''${words[(I)nofold]} )); then print -r -- "$name nofold"; else print -r -- "$name"; fi
         done < "$manifest"
       }
 
       _dot_stow() {
-        local pkgs=(''${(f)"$(_dot_packages)"})
-        if (( ''${#pkgs} == 0 )); then
+        local lines=(''${(f)"$(_dot_packages)"}) fold=() nofold=() line
+        for line in "''${lines[@]}"; do
+          [[ -z "$line" ]] && continue
+          [[ "$line" == *" nofold" ]] && nofold+=("''${line% nofold}") || fold+=("$line")
+        done
+        if (( ''${#fold} + ''${#nofold} == 0 )); then
           echo "dotfiles: no ~/.dotfiles/packages manifest - skipping stow"
           return 0
         fi
-        stow -d "$HOME/.dotfiles" -t "$HOME" -R "''${pkgs[@]}" \
-          || { echo "ERROR: stow aborted, nothing was linked - fix the conflicts above"; return 1; }
+        { (( ''${#fold} == 0 )) || stow -d "$HOME/.dotfiles" -t "$HOME" -R "''${fold[@]}"; } \
+          && { (( ''${#nofold} == 0 )) || stow -d "$HOME/.dotfiles" -t "$HOME" --no-folding -R "''${nofold[@]}"; } \
+          || { echo "ERROR: stow aborted - fix the conflicts above"; return 1; }
       }
 
       # Show what would be committed and ask first, so stray machine state
