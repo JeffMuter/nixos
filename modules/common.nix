@@ -52,7 +52,6 @@ in
     gcc
     gdb # gnu debugger for C
     fzf
-    direnv
     stow
     gh # one-time GitHub login on a new machine (install.sh)
     nvd # ~/nixos/check: package diff before switching
@@ -96,6 +95,14 @@ in
     zk
     unstable.nethack
   ];
+
+  # Per-project dev shells: a repo's .envrc (`use flake` / `use nix`) loads its
+  # toolchain on cd. nix-direnv caches it and protects it from garbage collection.
+  # New repo: nix flake init -t ~/nixos#devshell && direnv allow
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
   virtualisation.docker.enable = true;
   services.gnome.gnome-keyring.enable = true;

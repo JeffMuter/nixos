@@ -28,6 +28,12 @@
         };
     in
     {
+      # nix flake init -t ~/nixos#devshell   (flake.nix + .envrc for a repo)
+      templates.devshell = {
+        path = ./templates/devshell;
+        description = "per-repo dev shell loaded by direnv";
+      };
+
       nixosConfigurations = {
         emerald-work = mkHost "emerald-work"; # WSL
         emerald = mkHost "emerald"; # native desktop
