@@ -139,12 +139,11 @@ in
       '';
   };
 
+  # Identity, aliases and merge tool live in ~/.dotfiles/git/.gitconfig.
+  # safe.directory lets root (nixos-rebuild) read this user-owned repo.
   programs.git = {
     enable = true;
-    config = {
-      user.email = "muterjeffery@gmail.com";
-      user.name = "JeffMuter";
-    };
+    config.safe.directory = [ "/etc/nixos" "/home/emerald/nixos" ];
   };
 }
 
