@@ -375,7 +375,9 @@
         if [[ -n "$has_untracked" ]]; then
           echo "dotfiles: untracked files"
         fi
-        
+
+        command -v dot-doctor >/dev/null && { dot-doctor || true; }
+
         echo ""
         cd ~
       }
@@ -639,6 +641,12 @@
         clear
         _shell_greeting
         _rse_display
+        # dot-doctor takes ~1s: show the count from the last run, refresh it in the background
+        _doctor_cache="$HOME/.cache/dot-doctor-count"
+        [[ -s "$_doctor_cache" && "$(<$_doctor_cache)" != 0 ]] \
+          && echo "  dotfiles: $(<$_doctor_cache) unmanaged (run dot-doctor)"
+        ( command -v dot-doctor >/dev/null && dot-doctor --count > "$_doctor_cache" 2>/dev/null & )
+        unset _doctor_cache
       fi
     '';
   };
