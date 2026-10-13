@@ -81,7 +81,6 @@ in
     git-filter-repo
     grofer                    # system monitoring tool
     chromium                  # pi browser-tools skill (CDP on :9222); shows via WSLg on WSL
-    claude-code                # Anthropic's agentic CLI (nixpkgs, JS build)
     zk
     unstable.nethack
   ];
