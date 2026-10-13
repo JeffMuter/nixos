@@ -17,16 +17,18 @@
 
   outputs = { nixpkgs, ... }@inputs:
     let
-      mkHost = isWSL: extraModules: nixpkgs.lib.nixosSystem {
+      # hostName must match the attribute name: plain `nixos-rebuild switch`
+      # picks the flake output by the machine's hostname.
+      mkHost = hostName: isWSL: extraModules: nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs isWSL; };
-        modules = [ ./configuration.nix ] ++ extraModules;
+        modules = [ ./configuration.nix { networking.hostName = hostName; } ] ++ extraModules;
       };
     in
     {
       nixosConfigurations = {
-        emerald-work = mkHost true [ inputs.nixos-wsl.nixosModules.default ];
-        emerald = mkHost false [ ];
+        emerald-work = mkHost "emerald-work" true [ inputs.nixos-wsl.nixosModules.default ];
+        emerald = mkHost "emerald" false [ ];
       };
     };
 }
