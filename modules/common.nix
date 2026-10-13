@@ -56,6 +56,9 @@ in
     stow
     gh # one-time GitHub login on a new machine (install.sh)
     nvd # ~/nixos/check: package diff before switching
+    nixfmt # .githooks/pre-commit (nixos)
+    gitleaks # .githooks/pre-commit (dotfiles)
+    shellcheck # .githooks/pre-commit (dotfiles)
     age # secrets-backup / secrets-restore (dotfiles)
     neovim-unwrapped
     tree-sitter

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# nixos pre-commit: staged .nix files are nixfmt-formatted, and every host still
+# evaluates. Skip once with: git commit --no-verify
+set -euo pipefail
+
+mapfile -t files < <(git diff --cached --name-only --diff-filter=ACM -- '*.nix' | grep -v 'hardware-configuration\.nix$' || true)
+if (( ${#files[@]} )) && ! command -v nixfmt >/dev/null; then
+  echo "pre-commit: nixfmt not installed - skipping format check" >&2
+elif (( ${#files[@]} )) && ! nixfmt --check "${files[@]}" 2>/dev/null; then
+  echo "pre-commit: not nixfmt-formatted. Fix with:  nixfmt ${files[*]}" >&2
+  exit 1
+fi
+
+# new .nix files must be staged to be visible to the flake; eval sees the work tree
+mapfile -t hosts < <(nix eval --json .#nixosConfigurations --apply builtins.attrNames 2>/dev/null | jq -r '.[]')
+(( ${#hosts[@]} )) || { echo "pre-commit: flake.nix does not evaluate (run ./check)" >&2; exit 1; }
+for h in "${hosts[@]}"; do
+  if ! nix eval --raw ".#nixosConfigurations.$h.config.system.build.toplevel.drvPath" >/dev/null 2>&1; then
+    echo "pre-commit: host '$h' no longer evaluates - run ./check --fast to see the error" >&2
+    exit 1
+  fi
+done
