@@ -17,7 +17,8 @@ jobs:
       - name: Free disk space (the desktop closure is several GB)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v31
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
       - name: Evaluate every host
         run: nix flake check --no-build
       - name: Build ${{ matrix.host }}
